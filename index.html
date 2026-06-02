@@ -151,6 +151,21 @@ tbody tr:not(.grp){cursor:default}
 .psave{background:var(--accent);color:#fff;border:none;border-radius:9px;padding:11px 24px;font-family:inherit;font-size:14px;font-weight:500;cursor:pointer}
 .placeholder{background:var(--card);border:.5px solid var(--line);border-radius:14px;padding:54px;text-align:center;color:var(--muted);font-size:14px;line-height:1.7}
 .placeholder i{font-size:26px;display:block;margin-bottom:10px;color:var(--hint)}
+.exec-head{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:14px}
+.exec-head .h{font-size:14px;font-weight:600}
+.exec-head .sub{font-size:12px;color:var(--muted);margin-top:4px}
+.xbtn{background:var(--ok);color:#fff;border:none;border-radius:9px;padding:9px 16px;font-family:inherit;font-size:13px;font-weight:500;cursor:pointer;display:inline-flex;align-items:center;gap:6px}
+.exec-table{width:100%;border-collapse:collapse;background:var(--card);border:.5px solid var(--line);border-radius:12px;overflow:hidden}
+.exec-table th{font-size:11.5px;color:var(--muted);font-weight:500;text-align:left;padding:11px 12px;border-bottom:.5px solid var(--line);background:var(--bg)}
+.exec-table th.r,.exec-table td.r{text-align:right}
+.exec-table td{font-size:13px;padding:11px 12px;border-bottom:.5px solid var(--line)}
+.exec-table tr:last-child td{border-bottom:none}
+.exec-table tr.done:hover{background:var(--bg)}
+.exec-table tr.done{cursor:pointer}
+.ch-badge{display:inline-flex;align-items:center;gap:5px;font-size:12px;color:var(--muted)}
+.exec-link{color:#185FA5;text-decoration:none}
+.exec-link:hover{text-decoration:underline}
+.r-empty{color:var(--hint)}
 .topgrid{display:grid;grid-template-columns:1.5fr 1fr;gap:12px;align-items:stretch;width:100%}
 @media(max-width:760px){.topgrid{grid-template-columns:1fr}}
 .bud-card{background:var(--card);border:.5px solid var(--line);border-radius:14px;padding:14px 16px}
@@ -286,7 +301,20 @@ tbody tr:not(.grp){cursor:default}
     <button class="psave" id="planSave">개요·전략 저장</button>
   </section>
 
-  <section id="tab-exec" style="display:none"><div class="placeholder"><i class="ti ti-chart-bar"></i>집행·성과 — 다음 단계에서 구현<br><span style="font-size:12px">확정된 인플루언서의 실집행 결과 · 아카이브 · 리포트 · 엑셀 export</span></div></section>
+  <section id="tab-exec" style="display:none">
+    <div class="exec-head">
+      <div><div class="h">집행·성과</div><div class="sub" id="execSub"></div></div>
+      <button class="xbtn agency-only" id="exportBtn"><i class="ti ti-download"></i> 엑셀 다운로드</button>
+    </div>
+    <table class="exec-table">
+      <thead><tr>
+        <th>인플루언서</th><th>채널</th><th>원본</th><th>아카이브</th>
+        <th class="r">조회수</th><th class="r">인게이지먼트</th><th class="r">Total ER</th><th class="r"></th>
+      </tr></thead>
+      <tbody id="execBody"></tbody>
+    </table>
+    <div style="font-size:11.5px;color:var(--hint);margin-top:8px">인게이지먼트 = 좋아요 + 댓글 + 공유 · Total ER = 인게이지먼트 ÷ 조회수 · 활용 채널당 1건 · 행 클릭으로 결과 입력</div>
+  </section>
   <section id="tab-settings" style="display:none"><div class="placeholder"><i class="ti ti-settings"></i>설정 — 다음 단계에서 구현<br><span style="font-size:12px">캠페인 메타 · 앵글 마스터 · 공유</span></div></section>
 </div>
 
@@ -339,6 +367,29 @@ tbody tr:not(.grp){cursor:default}
   </div>
 </div>
 
+<div class="drawer-ov" id="resultOv">
+  <div class="drawer">
+    <div class="dh"><span class="t" id="rTitle">집행 결과</span><span class="x" id="rClose"><i class="ti ti-x"></i></span></div>
+    <div class="fld"><label>원본 콘텐츠 URL</label><input id="r-url" type="text" placeholder="게시물 링크"/></div>
+    <div class="fld"><label>아카이브 URL <span style="color:var(--hint)">드라이브 등</span></label><input id="r-archive" type="text"/></div>
+    <div class="fld"><label>게시일</label><input id="r-date" type="text" placeholder="2026-06-01"/></div>
+    <div class="metrics" style="grid-template-columns:1fr 1fr;gap:10px;margin-top:0">
+      <div class="fld"><label>조회수</label><input id="r-views"/></div>
+      <div class="fld"><label>좋아요</label><input id="r-likes"/></div>
+      <div class="fld"><label>댓글</label><input id="r-comments"/></div>
+      <div class="fld"><label>공유</label><input id="r-shares"/></div>
+    </div>
+    <div class="fld"><label>Total ER <span style="color:var(--hint)">자동</span></label><input id="r-er" readonly style="background:var(--bg)"/></div>
+    <div class="fld"><label>비고</label><textarea id="r-note"></textarea></div>
+    <div class="dbtns">
+      <button class="del" id="rDelete" title="결과 삭제" style="display:none"><i class="ti ti-trash"></i></button>
+      <button id="rCancel">취소</button>
+      <button class="save" id="rSave">저장</button>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import { getFirestore, doc, getDoc, collection, getDocs, updateDoc, setDoc, deleteDoc }
@@ -348,7 +399,7 @@ const firebaseConfig={apiKey:"AIzaSyCDRt36nsZ3Lz7HPnhiuM4oz65K_L8ZtGI",authDomai
 const app=initializeApp(firebaseConfig); const db=getFirestore(app);
 const CID="sprite-with-tea";
 
-const S={campaign:null,angles:[],infs:[],axis:"role",sort:"angle",clientMode:new URLSearchParams(location.search).get("view")==="client"};
+const S={campaign:null,angles:[],infs:[],results:[],axis:"role",sort:"angle",clientMode:new URLSearchParams(location.search).get("view")==="client"};
 
 const fmt=n=>{ if(n==null) return "–"; if(n>=1e6) return (n/1e6).toFixed(n%1e6?1:0)+"M"; if(n>=1e3) return (n/1e3).toFixed(n%1e3?1:0)+"K"; return ""+n; };
 const won=n=>n==null?null:n.toLocaleString("ko-KR");
@@ -600,6 +651,7 @@ document.getElementById("tabs").onclick=e=>{
   document.querySelectorAll("#tabs button").forEach(x=>x.classList.toggle("on",x===bt));
   ["board","plan","exec","settings"].forEach(id=>$("tab-"+id).style.display=(id===t)?"block":"none");
   if(t==="plan") populatePlan();
+  if(t==="exec") renderExec();
 };
 function setSum(id,v){const el=$(id); if(!el)return; el.textContent="합 "+v+"%"; el.className="wsum "+(v===100?"ok":"bad");}
 function recalcSums(){
@@ -660,10 +712,75 @@ $("planSave").onclick=savePlan;
 ["Super","Mega","Micro"].forEach(k=>$("pw-tier-"+k).oninput=recalcSums);
 $("budgetAdd").onclick=()=>{planBudget.push({tier:"섭외비",name:"",amount:0}); renderBudgetEdit(); recalcBudget();};
 
+// ---------- 집행·성과 ----------
+const PLAT={ig:{l:"인스타그램",icon:"brand-instagram"},yt:{l:"유튜브",icon:"brand-youtube"},tt:{l:"틱톡",icon:"brand-tiktok"}};
+let editingResult=null;
+function execRows(){
+  const rows=[];
+  confSet().forEach(inf=>["ig","yt","tt"].forEach(pk=>{ if(inf[pk]&&inf[pk].use){ const id="r_"+inf.order+"_"+pk; rows.push({o:inf.order,name:inf.name,p:pk,id,res:S.results.find(r=>r.id===id)||null}); }}));
+  return rows;
+}
+function erCalc(r){ const v=+r.views||0; if(!v) return null; return ((+r.likes||0)+(+r.comments||0)+(+r.shares||0))/v; }
+function renderExec(){
+  const rows=execRows(); const done=rows.filter(x=>x.res).length;
+  $("execSub").textContent=`확정 ${confSet().length}명 · 활용 채널 ${rows.length}건 · 결과 입력 ${done}건`;
+  if(!rows.length){ $("execBody").innerHTML=`<tr><td colspan="8" style="padding:34px;text-align:center;color:var(--hint)">확정된 인플루언서의 활용 채널이 없어요. 보드에서 확정·채널 활용을 먼저 설정하세요.</td></tr>`; return; }
+  $("execBody").innerHTML=rows.map(x=>{
+    const r=x.res, er=r?erCalc(r):null, eng=r?((+r.likes||0)+(+r.comments||0)+(+r.shares||0)):null;
+    return `<tr class="done" data-o="${x.o}" data-p="${x.p}">
+      <td>${x.name}</td>
+      <td><span class="ch-badge"><i class="ti ti-${PLAT[x.p].icon}"></i> ${PLAT[x.p].l}</span></td>
+      <td>${r&&r.url?`<a class="exec-link" href="${r.url}" target="_blank" rel="noopener" onclick="event.stopPropagation()">원본</a>`:'<span class="r-empty">–</span>'}</td>
+      <td>${r&&r.archive?`<a class="exec-link" href="${r.archive}" target="_blank" rel="noopener" onclick="event.stopPropagation()">아카이브</a>`:'<span class="r-empty">–</span>'}</td>
+      <td class="r">${r&&r.views!=null?(+r.views).toLocaleString("ko-KR"):'<span class="r-empty">–</span>'}</td>
+      <td class="r">${eng!=null?eng.toLocaleString("ko-KR"):'<span class="r-empty">–</span>'}</td>
+      <td class="r">${er!=null?(er*100).toFixed(1)+"%":'<span class="r-empty">–</span>'}</td>
+      <td class="r"><i class="ti ti-${r?"edit":"plus"}" style="color:var(--muted)"></i></td></tr>`;
+  }).join("");
+  $("execBody").querySelectorAll("tr.done").forEach(tr=>tr.onclick=e=>{ if(e.target.closest("a"))return; openResult(+tr.dataset.o,tr.dataset.p); });
+}
+function recalcER(){ const dg=id=>parseInt(($("r-"+id).value||"").replace(/[^\d]/g,""),10)||0; const v=dg("views"); const e=dg("likes")+dg("comments")+dg("shares"); $("r-er").value=v?((e/v*100).toFixed(2)+"%"):"–"; }
+function openResult(o,p){
+  editingResult={o,p}; const inf=S.infs.find(i=>i.order===o); const id="r_"+o+"_"+p; const r=S.results.find(x=>x.id===id)||null;
+  $("rTitle").textContent=`${inf?inf.name:""} · ${PLAT[p].l}`;
+  $("r-url").value=r?(r.url||""):((inf&&inf[p]&&inf[p].url)||"");
+  $("r-archive").value=r?(r.archive||""):""; $("r-date").value=r?(r.date||""):"";
+  ["views","likes","comments","shares"].forEach(k=>$("r-"+k).value=(r&&r[k]!=null)?r[k]:"");
+  $("r-note").value=r?(r.note||""):""; $("rDelete").style.display=r?"flex":"none";
+  recalcER(); $("resultOv").classList.add("open");
+}
+async function saveResult(){
+  const {o,p}=editingResult; const id="r_"+o+"_"+p; const inf=S.infs.find(i=>i.order===o);
+  const nn=k=>{ const s=($("r-"+k).value||"").replace(/[^\d]/g,""); return s?parseInt(s,10):null; };
+  const obj={ id, infOrder:o, infName:inf?inf.name:"", platform:p, url:$("r-url").value.trim()||null, archive:$("r-archive").value.trim()||null, date:$("r-date").value.trim()||null, views:nn("views"), likes:nn("likes"), comments:nn("comments"), shares:nn("shares"), note:$("r-note").value.trim()||null };
+  $("rSave").textContent="저장 중…"; $("rSave").disabled=true;
+  try{ await setDoc(doc(db,"campaigns",CID,"results",id),obj); const i=S.results.findIndex(x=>x.id===id); if(i>=0)S.results[i]=obj; else S.results.push(obj); $("resultOv").classList.remove("open"); renderExec(); }
+  catch(e){ alert("저장 실패: "+e.message); }
+  $("rSave").textContent="저장"; $("rSave").disabled=false;
+}
+async function deleteResult(){ const {o,p}=editingResult; const id="r_"+o+"_"+p; if(!confirm("이 집행 결과를 삭제할까요?"))return;
+  try{ await deleteDoc(doc(db,"campaigns",CID,"results",id)); S.results=S.results.filter(x=>x.id!==id); $("resultOv").classList.remove("open"); renderExec(); }catch(e){ alert("삭제 실패: "+e.message); } }
+function exportXlsx(){
+  if(typeof XLSX==="undefined"){ alert("엑셀 모듈 로딩 실패 — 네트워크 확인 후 새로고침."); return; }
+  const data=execRows().map(x=>{ const r=x.res||{}; const er=x.res?erCalc(x.res):null;
+    return {인플루언서:x.name,채널:PLAT[x.p].l,"원본 URL":r.url||"",아카이브:r.archive||"",게시일:r.date||"",조회수:r.views??"",좋아요:r.likes??"",댓글:r.comments??"",공유:r.shares??"","Total ER":er!=null?(er*100).toFixed(2)+"%":"",비고:r.note||""}; });
+  const ws=XLSX.utils.json_to_sheet(data);
+  ws["!cols"]=[{wch:18},{wch:10},{wch:32},{wch:32},{wch:12},{wch:10},{wch:9},{wch:8},{wch:8},{wch:10},{wch:24}];
+  const wb=XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb,ws,"집행성과");
+  XLSX.writeFile(wb,`${(S.campaign&&S.campaign.name)||"campaign"}_집행성과.xlsx`);
+}
+$("rClose").onclick=()=>$("resultOv").classList.remove("open");
+$("rCancel").onclick=()=>$("resultOv").classList.remove("open");
+$("rSave").onclick=saveResult; $("rDelete").onclick=deleteResult;
+$("resultOv").onclick=e=>{ if(e.target.id==="resultOv") $("resultOv").classList.remove("open"); };
+["views","likes","comments","shares"].forEach(k=>$("r-"+k).oninput=recalcER);
+$("exportBtn").onclick=exportXlsx;
+
 async function load(){
   const cs=await getDoc(doc(db,"campaigns",CID)); S.campaign=cs.data();
   const as=await getDocs(collection(db,"campaigns",CID,"angles")); S.angles=as.docs.map(d=>d.data()).sort((a,b)=>b.weight-a.weight);
   const is=await getDocs(collection(db,"campaigns",CID,"influencers")); S.infs=is.docs.map(d=>d.data()).sort((a,b)=>a.order-b.order);
+  try{ const rs=await getDocs(collection(db,"campaigns",CID,"results")); S.results=rs.docs.map(d=>d.data()); }catch(e){ S.results=[]; }
   render();
 }
 load().catch(e=>{document.getElementById("tbody").innerHTML=`<tr><td colspan="9" class="loading">불러오기 실패: ${e.message}</td></tr>`;});
