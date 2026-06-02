@@ -125,6 +125,32 @@ body.client tbody tr.reco{outline:1.5px solid #FAC775;outline-offset:-1.5px}
 .dbtns .del{flex:0 0 auto;color:#A32D2D;border-color:#F09595}
 .section-l{font-size:12px;font-weight:500;color:var(--muted);margin:6px 0 8px;display:flex;align-items:center;gap:6px}
 tbody tr:not(.grp){cursor:default}
+.tabs{display:flex;gap:4px;border-bottom:.5px solid var(--line);margin-bottom:18px}
+.tabs button{font-family:inherit;font-size:13.5px;color:var(--muted);background:none;border:none;border-bottom:2px solid transparent;padding:9px 14px;cursor:pointer;margin-bottom:-1px}
+.tabs button.on{color:var(--ink);border-bottom-color:var(--accent);font-weight:500}
+.tabs button:hover{color:var(--ink)}
+.plan-card{background:var(--card);border:.5px solid var(--line);border-radius:14px;padding:18px 20px;margin-bottom:14px}
+.plan-card h3{font-size:14px;font-weight:600;margin-bottom:14px;display:flex;align-items:center;gap:7px}
+.pgrid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.pf{display:flex;flex-direction:column;gap:6px;margin-bottom:12px}
+.pf label{font-size:12px;color:var(--muted)}
+.pf input,.pf textarea{font-family:inherit;font-size:13px;border:.5px solid var(--line);border-radius:8px;padding:8px 10px;background:var(--card);color:var(--ink);width:100%}
+.pf textarea{min-height:46px;resize:vertical}
+.angle-edit{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.angle-edit input{font-family:inherit;font-size:13px;border:.5px solid var(--line);border-radius:8px;padding:7px 10px;color:var(--ink);background:var(--card)}
+.angle-edit input.an{flex:1}
+.angle-edit input.aw{width:80px;font-family:"JetBrains Mono",monospace;text-align:right}
+.angle-edit .rm{cursor:pointer;color:#A32D2D;border:.5px solid #F09595;background:none;border-radius:7px;padding:6px 9px}
+.wsum{font-size:11.5px;margin-left:4px;font-weight:400}
+.wsum.bad{color:#A32D2D}.wsum.ok{color:var(--ok)}
+.miniadd{font-size:12.5px;color:#185FA5;background:none;border:.5px dashed var(--line);border-radius:8px;padding:7px 11px;cursor:pointer;margin-top:4px}
+.budget-row{display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:.5px solid var(--line);font-size:13px}
+.budget-row:last-child{border-bottom:none;font-weight:600;padding-top:10px}
+.budget-row input{font-family:"JetBrains Mono",monospace;text-align:right;width:170px;border:.5px solid var(--line);border-radius:8px;padding:7px 10px;font-size:13px;color:var(--ink);background:var(--card)}
+.budget-row .num{font-size:15px}
+.psave{background:var(--accent);color:#fff;border:none;border-radius:9px;padding:11px 24px;font-family:inherit;font-size:14px;font-weight:500;cursor:pointer}
+.placeholder{background:var(--card);border:.5px solid var(--line);border-radius:14px;padding:54px;text-align:center;color:var(--muted);font-size:14px;line-height:1.7}
+.placeholder i{font-size:26px;display:block;margin-bottom:10px;color:var(--hint)}
 .price-tbu{color:var(--hint)}
 </style>
 </head>
@@ -146,6 +172,14 @@ tbody tr:not(.grp){cursor:default}
 
   <div class="overview" id="overview" style="display:none"></div>
 
+  <nav class="tabs" id="tabs">
+    <button data-tab="board" class="on">인플루언서 보드</button>
+    <button data-tab="plan" class="agency-only">개요·전략</button>
+    <button data-tab="exec">집행·성과</button>
+    <button data-tab="settings" class="agency-only">설정</button>
+  </nav>
+
+  <section id="tab-board">
   <div class="kpis" id="kpis"></div>
 
   <div class="cmp" id="cmp" style="display:none">
@@ -192,6 +226,53 @@ tbody tr:not(.grp){cursor:default}
       <tbody id="tbody"><tr><td colspan="8" class="loading">데이터 불러오는 중…</td></tr></tbody>
     </table>
   </div>
+  </section>
+
+  <section id="tab-plan" style="display:none">
+    <div class="plan-card">
+      <h3><i class="ti ti-target"></i> 타겟 프로파일</h3>
+      <div class="pgrid">
+        <div class="pf"><label>메인 타겟</label><input id="p-main"/></div>
+        <div class="pf"><label>서브 타겟</label><input id="p-sub"/></div>
+      </div>
+      <div class="pf"><label>성향</label><input id="p-traits"/></div>
+      <div class="pf"><label>포지셔닝</label><textarea id="p-pos"></textarea></div>
+    </div>
+    <div class="plan-card">
+      <h3><i class="ti ti-bulb"></i> 앵글 + 계획비중 <span class="wsum" id="angleSum"></span></h3>
+      <div id="angleList"></div>
+      <button class="miniadd" id="angleAdd"><i class="ti ti-plus"></i> 앵글 추가</button>
+    </div>
+    <div class="plan-card">
+      <h3><i class="ti ti-scale"></i> 계획 비중</h3>
+      <div class="pgrid">
+        <div>
+          <div style="font-size:12px;color:var(--muted);margin-bottom:8px">역할 <span class="wsum" id="roleSum"></span></div>
+          <div class="angle-edit"><span style="width:84px;font-size:12px;color:var(--muted)">인플루언서</span><input class="aw" id="pw-role-influencer" type="number"/></div>
+          <div class="angle-edit"><span style="width:84px;font-size:12px;color:var(--muted)">파워페이지</span><input class="aw" id="pw-role-powerpage" type="number"/></div>
+          <div class="angle-edit"><span style="width:84px;font-size:12px;color:var(--muted)">기타</span><input class="aw" id="pw-role-etc" type="number"/></div>
+        </div>
+        <div>
+          <div style="font-size:12px;color:var(--muted);margin-bottom:8px">티어 <span class="wsum" id="tierSum"></span></div>
+          <div class="angle-edit"><span style="width:84px;font-size:12px;color:var(--muted)">Super</span><input class="aw" id="pw-tier-Super" type="number"/></div>
+          <div class="angle-edit"><span style="width:84px;font-size:12px;color:var(--muted)">Mega</span><input class="aw" id="pw-tier-Mega" type="number"/></div>
+          <div class="angle-edit"><span style="width:84px;font-size:12px;color:var(--muted)">Micro</span><input class="aw" id="pw-tier-Micro" type="number"/></div>
+        </div>
+      </div>
+    </div>
+    <div class="plan-card">
+      <h3><i class="ti ti-receipt"></i> 예산 견적</h3>
+      <div class="budget-row"><span>섭외비</span><input id="b-casting"/></div>
+      <div class="budget-row"><span>제작비</span><input id="b-production"/></div>
+      <div class="budget-row"><span>체험단 시딩</span><input id="b-seeding"/></div>
+      <div class="budget-row"><span>대행료</span><input id="b-agencyFee"/></div>
+      <div class="budget-row"><span>총계</span><span class="num" id="b-total">–</span></div>
+    </div>
+    <button class="psave" id="planSave">개요·전략 저장</button>
+  </section>
+
+  <section id="tab-exec" style="display:none"><div class="placeholder"><i class="ti ti-chart-bar"></i>집행·성과 — 다음 단계에서 구현<br><span style="font-size:12px">확정된 인플루언서의 실집행 결과 · 아카이브 · 리포트 · 엑셀 export</span></div></section>
+  <section id="tab-settings" style="display:none"><div class="placeholder"><i class="ti ti-settings"></i>설정 — 다음 단계에서 구현<br><span style="font-size:12px">캠페인 메타 · 앵글 마스터 · 공유</span></div></section>
 </div>
 
 <div class="drawer-ov" id="drawerOv">
@@ -471,6 +552,64 @@ $("addBtn").onclick=()=>openDrawer(null);
 $("dClose").onclick=closeDrawer; $("dCancel").onclick=closeDrawer; $("dSave").onclick=saveDrawer; $("dDelete").onclick=deleteDrawer;
 $("d-role").onchange=syncTier;
 $("drawerOv").onclick=e=>{ if(e.target.id==="drawerOv") closeDrawer(); };
+
+// ---------- Tabs + Plan ----------
+let planAngles=[];
+document.getElementById("tabs").onclick=e=>{
+  const bt=e.target.closest("button"); if(!bt) return;
+  const t=bt.dataset.tab;
+  document.querySelectorAll("#tabs button").forEach(x=>x.classList.toggle("on",x===bt));
+  ["board","plan","exec","settings"].forEach(id=>$("tab-"+id).style.display=(id===t)?"block":"none");
+  if(t==="plan") populatePlan();
+};
+function setSum(id,v){const el=$(id); if(!el)return; el.textContent="합 "+v+"%"; el.className="wsum "+(v===100?"ok":"bad");}
+function recalcSums(){
+  setSum("angleSum",planAngles.reduce((s,a)=>s+(+a.weight||0),0));
+  setSum("roleSum",["influencer","powerpage","etc"].reduce((s,k)=>s+(+$("pw-role-"+k).value||0),0));
+  setSum("tierSum",["Super","Mega","Micro"].reduce((s,k)=>s+(+$("pw-tier-"+k).value||0),0));
+}
+function recalcBudget(){const bn=id=>parseInt(($("b-"+id).value||"").replace(/[^\d]/g,""),10)||0; $("b-total").textContent=(bn("casting")+bn("production")+bn("seeding")+bn("agencyFee")).toLocaleString("ko-KR");}
+function renderAngleEdit(){
+  $("angleList").innerHTML=planAngles.map((a,i)=>`<div class="angle-edit">
+    <input class="an" data-i="${i}" data-f="name" value="${(a.name||'').replace(/"/g,'&quot;')}" placeholder="앵글명"/>
+    <input class="aw" data-i="${i}" data-f="weight" type="number" value="${a.weight||0}"/>
+    <button class="rm" data-i="${i}"><i class="ti ti-trash"></i></button></div>`).join("");
+  $("angleList").querySelectorAll("input").forEach(inp=>inp.oninput=()=>{const i=+inp.dataset.i,f=inp.dataset.f; planAngles[i][f]=(f==="weight")?(+inp.value||0):inp.value; if(f==="weight")recalcSums();});
+  $("angleList").querySelectorAll(".rm").forEach(btn=>btn.onclick=()=>{planAngles.splice(+btn.dataset.i,1); renderAngleEdit(); recalcSums();});
+}
+function populatePlan(){
+  const c=S.campaign||{}, t=c.target||{}, pw=c.planWeights||{}, b=c.budget||{};
+  $("p-main").value=t.main||""; $("p-sub").value=t.sub||""; $("p-traits").value=t.traits||""; $("p-pos").value=t.positioning||"";
+  ["influencer","powerpage","etc"].forEach(k=>$("pw-role-"+k).value=(pw.role||{})[k]??0);
+  ["Super","Mega","Micro"].forEach(k=>$("pw-tier-"+k).value=(pw.tier||{})[k]??0);
+  ["casting","production","seeding","agencyFee"].forEach(k=>$("b-"+k).value=(b[k]??0));
+  planAngles=S.angles.map(a=>({id:a.id,name:a.name,weight:a.weight}));
+  renderAngleEdit(); recalcBudget(); recalcSums();
+}
+async function savePlan(){
+  const c=S.campaign;
+  c.target={main:$("p-main").value.trim(),sub:$("p-sub").value.trim(),traits:$("p-traits").value.trim(),positioning:$("p-pos").value.trim()};
+  c.planWeights={role:{influencer:+$("pw-role-influencer").value||0,powerpage:+$("pw-role-powerpage").value||0,etc:+$("pw-role-etc").value||0},
+    tier:{Super:+$("pw-tier-Super").value||0,Mega:+$("pw-tier-Mega").value||0,Micro:+$("pw-tier-Micro").value||0}};
+  const bn=id=>parseInt(($("b-"+id).value||"").replace(/[^\d]/g,""),10)||0;
+  const ca=bn("casting"),pr=bn("production"),se=bn("seeding"),af=bn("agencyFee");
+  c.budget={casting:ca,production:pr,seeding:se,agencyFee:af,total:ca+pr+se+af};
+  $("planSave").textContent="저장 중…"; $("planSave").disabled=true;
+  try{
+    await setDoc(doc(db,"campaigns",CID),c,{merge:true});
+    const keep=new Set();
+    for(const a of planAngles){ if(!a.name.trim()) continue; const id=a.id||("a"+Date.now()+Math.floor(Math.random()*1e4)); keep.add(id); await setDoc(doc(db,"campaigns",CID,"angles",id),{id,name:a.name.trim(),weight:+a.weight||0}); }
+    for(const a of S.angles){ if(!keep.has(a.id)) await deleteDoc(doc(db,"campaigns",CID,"angles",a.id)); }
+    const as=await getDocs(collection(db,"campaigns",CID,"angles")); S.angles=as.docs.map(d=>d.data()).sort((x,y)=>y.weight-x.weight);
+    render(); alert("개요·전략 저장됐어요.");
+  }catch(e){ alert("저장 실패: "+e.message); }
+  $("planSave").textContent="개요·전략 저장"; $("planSave").disabled=false;
+}
+$("angleAdd").onclick=()=>{planAngles.push({id:null,name:"",weight:0}); renderAngleEdit(); recalcSums();};
+$("planSave").onclick=savePlan;
+["influencer","powerpage","etc"].forEach(k=>$("pw-role-"+k).oninput=recalcSums);
+["Super","Mega","Micro"].forEach(k=>$("pw-tier-"+k).oninput=recalcSums);
+["casting","production","seeding","agencyFee"].forEach(k=>$("b-"+k).oninput=recalcBudget);
 
 async function load(){
   const cs=await getDoc(doc(db,"campaigns",CID)); S.campaign=cs.data();
