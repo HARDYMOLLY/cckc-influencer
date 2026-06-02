@@ -198,6 +198,15 @@ tbody tr:not(.grp){cursor:default}
 .swatches{display:flex;gap:8px;flex-wrap:wrap}
 .swatch{width:26px;height:26px;border-radius:50%;cursor:pointer;border:2px solid transparent}
 .swatch.on{border-color:var(--ink)}
+.round-badge{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:50%;background:#eceae3;color:var(--muted);font-size:11px;font-weight:600;margin-right:7px;vertical-align:middle}
+.round-badge.latest{background:#E24B4A;color:#fff}
+.round-date{font-size:11.5px;color:var(--muted);font-family:"JetBrains Mono",monospace}
+.exec-table tr.grp td{background:var(--bg);font-weight:600;font-size:12.5px;color:var(--ink);padding:8px 12px}
+.report-sum{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:16px}
+.rs-card{background:var(--card);border:.5px solid var(--line);border-radius:12px;padding:14px 16px}
+.rs-card .l{font-size:12px;color:var(--muted);margin-bottom:6px}
+.rs-card .v{font-size:20px;font-weight:600;font-family:"JetBrains Mono",monospace}
+.rs-card .sub{font-size:11.5px;color:var(--hint);margin-top:6px;line-height:1.5}
 .topgrid{display:grid;grid-template-columns:1.5fr 1fr;gap:12px;align-items:stretch;width:100%}
 @media(max-width:760px){.topgrid{grid-template-columns:1fr}}
 .bud-card{background:var(--card);border:.5px solid var(--line);border-radius:14px;padding:14px 16px}
@@ -234,11 +243,9 @@ tbody tr:not(.grp){cursor:default}
       <span class="homebtn agency-only" id="homeBtn" title="홈으로"><i class="ti ti-arrow-left"></i></span>
       <span class="dot" id="brandDot"></span>
       <h1 id="cName">불러오는 중…</h1>
-      <span class="stage" id="stage"></span>
     </div>
     <div class="hbtns">
       <button class="hbtn" id="viewBtn"><i class="ti ti-eye"></i> 광고주 뷰</button>
-      <button class="hbtn agency-only"><i class="ti ti-download"></i> 견적</button>
     </div>
   </header>
 
@@ -247,9 +254,10 @@ tbody tr:not(.grp){cursor:default}
   <div class="overview" id="overview" style="display:none"></div>
 
   <nav class="tabs" id="tabs">
-    <button data-tab="board" class="on">인플루언서 보드</button>
     <button data-tab="plan" class="agency-only">개요·전략</button>
-    <button data-tab="exec">집행·성과</button>
+    <button data-tab="board" class="on">제안</button>
+    <button data-tab="deploy">집행</button>
+    <button data-tab="exec">결과 리포트</button>
     <button data-tab="settings" class="agency-only">설정</button>
   </nav>
 
@@ -294,7 +302,7 @@ tbody tr:not(.grp){cursor:default}
   <div class="tablewrap">
     <table>
       <thead><tr>
-        <th>상태</th><th>인플루언서</th><th>채널</th><th>역할·티어</th><th>앵글</th>
+        <th>상태</th><th>인플루언서</th><th>채널</th><th>역할·티어</th><th>제안 현황</th>
         <th class="r">팔로워</th><th class="r">ER</th><th class="r">섭외비</th><th class="r">섭외 부대비용</th>
       </tr></thead>
       <tbody id="tbody"><tr><td colspan="9" class="loading">데이터 불러오는 중…</td></tr></tbody>
@@ -343,11 +351,21 @@ tbody tr:not(.grp){cursor:default}
     <button class="psave" id="planSave">개요·전략 저장</button>
   </section>
 
+  <section id="tab-deploy" style="display:none">
+    <div class="exec-head"><div><div class="h">집행</div><div class="sub" id="deploySub"></div></div></div>
+    <table class="exec-table">
+      <thead><tr><th>인플루언서</th><th>채널</th><th>역할·티어</th><th>집행 일정</th><th class="r"></th></tr></thead>
+      <tbody id="deployBody"></tbody>
+    </table>
+    <div style="font-size:11.5px;color:var(--hint);margin-top:8px">최종 확정된 인플루언서의 활용 채널별 집행 현황 · 채널별 분리 · 행 클릭으로 집행 일정 입력</div>
+  </section>
+
   <section id="tab-exec" style="display:none">
     <div class="exec-head">
-      <div><div class="h">집행·성과</div><div class="sub" id="execSub"></div></div>
+      <div><div class="h">결과 리포트</div><div class="sub" id="execSub"></div></div>
       <button class="xbtn agency-only" id="exportBtn"><i class="ti ti-download"></i> 엑셀 다운로드</button>
     </div>
+    <div class="report-sum" id="execSummary"></div>
     <table class="exec-table">
       <thead><tr>
         <th>인플루언서</th><th>채널</th><th>원본</th><th>아카이브</th>
@@ -357,7 +375,7 @@ tbody tr:not(.grp){cursor:default}
     </table>
     <div style="font-size:11.5px;color:var(--hint);margin-top:8px">인게이지먼트 = 좋아요 + 댓글 + 공유 · Total ER = 인게이지먼트 ÷ 조회수 · 활용 채널당 1건 · 행 클릭으로 결과 입력</div>
   </section>
-  <section id="tab-settings" style="display:none"><div class="placeholder"><i class="ti ti-settings"></i>설정 — 다음 단계에서 구현<br><span style="font-size:12px">캠페인 메타 · 앵글 마스터 · 공유</span></div></section>
+  <section id="tab-settings" style="display:none"><div class="placeholder"><i class="ti ti-settings"></i>설정 — 추후 구현<br><span style="font-size:12px">ER 계산식 설정 등</span></div></section>
 </div>
 
 <div class="drawer-ov" id="drawerOv">
@@ -371,6 +389,10 @@ tbody tr:not(.grp){cursor:default}
     <div class="frow">
       <div class="fld"><label>앵글</label><select id="d-angle"></select></div>
       <div class="fld"><label>섭외비 <span style="color:var(--hint)">콘텐츠 섭외</span></label><input id="d-casting" type="text" placeholder="TBU 또는 숫자"/></div>
+    </div>
+    <div class="frow">
+      <div class="fld"><label>제안 회차</label><select id="d-round"><option value="">–</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option><option>6</option><option>7</option><option>8</option><option>9</option><option>10</option></select></div>
+      <div class="fld"><label>제안 일자</label><input id="d-pdate" type="date"/></div>
     </div>
     <div class="frow">
       <div class="fld"><label>섭외 부대비용 <span style="color:var(--hint)">2차 라이선스 등</span></label><input id="d-extra" type="text" placeholder="숫자"/></div>
@@ -412,6 +434,7 @@ tbody tr:not(.grp){cursor:default}
 <div class="drawer-ov" id="resultOv">
   <div class="drawer">
     <div class="dh"><span class="t" id="rTitle">집행 결과</span><span class="x" id="rClose"><i class="ti ti-x"></i></span></div>
+    <div class="fld"><label>집행 일정</label><input id="r-schedule" type="text" placeholder="예: 26.06.01 ~ 06.15"/></div>
     <div class="fld"><label>원본 콘텐츠 URL</label><input id="r-url" type="text" placeholder="게시물 링크"/></div>
     <div class="fld"><label>아카이브 URL <span style="color:var(--hint)">드라이브 등</span></label><input id="r-archive" type="text"/></div>
     <div class="fld"><label>게시일</label><input id="r-date" type="text" placeholder="2026-06-01"/></div>
@@ -532,7 +555,6 @@ function groupKey(inf){ if(S.sort==="angle")return inf.angle||"미지정 (파워
 function render(){
   S.campaign && (document.getElementById("cName").textContent=S.campaign.name);
   if(S.campaign){
-    document.getElementById("stage").textContent=S.campaign.stage==="proposal"?"제안 단계":S.campaign.stage;
     document.getElementById("brandDot").style.background=S.campaign.brandColor||"#E24B4A";
     document.documentElement.style.setProperty("--accent",S.campaign.brandColor||"#E24B4A");
   }
@@ -582,6 +604,7 @@ function render(){
   [...document.querySelectorAll("#axis button")].forEach(btn=>btn.classList.toggle("on",btn.dataset.axis===S.axis));
   // table
   const rows=sortInfs(); let html=""; let lastG=null;
+  const maxRound=Math.max(0,...S.infs.map(i=>+i.proposalRound||0));
   for(const inf of rows){
     const g=groupKey(inf);
     if(g!==null && g!==lastG){ html+=`<tr class="grp"><td colspan="9">${g}</td></tr>`; lastG=g; }
@@ -600,7 +623,7 @@ function render(){
       <td><span class="nm-main">${inf.name}</span></td>
       <td>${channels(inf)}</td>
       <td><span class="badge ${ROLE[inf.role].b}">${ROLE[inf.role].l}${tier}</span></td>
-      <td>${inf.angle?`<span class="achip a-${Math.max(0,S.angles.findIndex(a=>a.name===inf.angle))%3}">${inf.angle}</span>`:`<span class="achip a-x">–</span>`}</td>
+      <td>${(+inf.proposalRound)?`<span class="round-badge${(+inf.proposalRound===maxRound)?" latest":""}">${+inf.proposalRound}</span>`:""}${inf.proposalDate?`<span class="round-date">${fmtD(inf.proposalDate)}</span>`:((+inf.proposalRound)?"":`<span class="r-empty">–</span>`)}</td>
       <td class="r num">${fmt(p.followers)}</td>
       <td class="r num">${er}</td>
       <td class="r">${cstCell}</td>
@@ -659,6 +682,8 @@ function openDrawer(order){
   $("d-role").value=inf?inf.role:"influencer";
   $("d-tier").value=inf&&inf.tier?inf.tier:"";
   $("d-angle").value=inf?(inf.angle||""):"";
+  $("d-round").value=inf&&inf.proposalRound?inf.proposalRound:"";
+  $("d-pdate").value=inf?(inf.proposalDate||""):"";
   $("d-casting").value=inf&&infCasting(inf)?infCasting(inf):"";
   $("d-extra").value=inf&&infExtra(inf)?infExtra(inf):"";
   $("d-extranote").value=inf?(inf.extraNote||""):"";
@@ -680,6 +705,7 @@ async function saveDrawer(){
   const ig=readPlat("ig"), yt=readPlat("yt"), tt=readPlat("tt");
   const obj={ name, url:ig.url||yt.url||tt.url||prev.url||null, recommend:$("d-reco").checked, proceed:$("d-confirm").checked,
     role, tier:(role==="influencer"?($("d-tier").value||null):null), angle:$("d-angle").value||"", angleGroup:prev.angleGroup||"",
+    proposalRound:$("d-round").value?+$("d-round").value:null, proposalDate:$("d-pdate").value||null,
     casting:parsePrice($("d-casting").value), extra:parsePrice($("d-extra").value), extraNote:$("d-extranote").value.trim()||null, ig, yt, tt,
     demoAge:$("d-age").value.trim()||null, demoGender:$("d-gender").value.trim()||null, note:$("d-note").value.trim()||null, order };
   $("dSave").textContent="저장 중…"; $("dSave").disabled=true;
@@ -708,8 +734,9 @@ document.getElementById("tabs").onclick=e=>{
   const bt=e.target.closest("button"); if(!bt) return;
   const t=bt.dataset.tab;
   document.querySelectorAll("#tabs button").forEach(x=>x.classList.toggle("on",x===bt));
-  ["board","plan","exec","settings"].forEach(id=>$("tab-"+id).style.display=(id===t)?"block":"none");
+  ["plan","board","deploy","exec","settings"].forEach(id=>$("tab-"+id).style.display=(id===t)?"block":"none");
   if(t==="plan") populatePlan();
+  if(t==="deploy") renderDeploy();
   if(t==="exec") renderExec();
 };
 function setSum(id,v){const el=$(id); if(!el)return; el.textContent="합 "+v+"%"; el.className="wsum "+(v===100?"ok":"bad");}
@@ -783,6 +810,13 @@ function erCalc(r){ const v=+r.views||0; if(!v) return null; return ((+r.likes||
 function renderExec(){
   const rows=execRows(); const done=rows.filter(x=>x.res).length;
   $("execSub").textContent=`확정 ${confSet().length}명 · 활용 채널 ${rows.length}건 · 결과 입력 ${done}건`;
+  const rrs=rows.filter(x=>x.res).map(x=>x.res);
+  const tv=rrs.reduce((s,r)=>s+(+r.views||0),0), tl=rrs.reduce((s,r)=>s+(+r.likes||0),0), tc=rrs.reduce((s,r)=>s+(+r.comments||0),0), tsh=rrs.reduce((s,r)=>s+(+r.shares||0),0);
+  const teng=tl+tc+tsh, ter=tv?teng/tv:null;
+  $("execSummary").innerHTML=`
+    <div class="rs-card"><div class="l">총 조회수</div><div class="v">${tv.toLocaleString("ko-KR")}</div></div>
+    <div class="rs-card"><div class="l">총 인게이지먼트</div><div class="v">${teng.toLocaleString("ko-KR")}</div><div class="sub">좋아요 ${tl.toLocaleString("ko-KR")} · 댓글 ${tc.toLocaleString("ko-KR")} · 공유 ${tsh.toLocaleString("ko-KR")}</div></div>
+    <div class="rs-card"><div class="l">Total ER <span style="color:var(--hint)">평균</span></div><div class="v">${ter!=null?(ter*100).toFixed(2)+"%":"–"}</div><div class="sub">총 인게이지먼트 ÷ 총 조회수</div></div>`;
   if(!rows.length){ $("execBody").innerHTML=`<tr><td colspan="8" style="padding:34px;text-align:center;color:var(--hint)">확정된 인플루언서의 활용 채널이 없어요. 보드에서 확정·채널 활용을 먼저 설정하세요.</td></tr>`; return; }
   $("execBody").innerHTML=rows.map(x=>{
     const r=x.res, er=r?erCalc(r):null, eng=r?((+r.likes||0)+(+r.comments||0)+(+r.shares||0)):null;
@@ -798,10 +832,35 @@ function renderExec(){
   }).join("");
   $("execBody").querySelectorAll("tr.done").forEach(tr=>tr.onclick=e=>{ if(e.target.closest("a"))return; openResult(+tr.dataset.o,tr.dataset.p); });
 }
+function renderDeploy(){
+  const cf=confSet(); const rows=[];
+  cf.forEach(inf=>["ig","yt","tt"].forEach(pk=>{ if(inf[pk]&&inf[pk].use) rows.push({inf,pk}); }));
+  rows.sort((a,b)=>{ const ai=S.angles.findIndex(x=>x.name===a.inf.angle), bi=S.angles.findIndex(x=>x.name===b.inf.angle); return (ai<0?99:ai)-(bi<0?99:bi); });
+  $("deploySub").textContent=`확정 ${cf.length}명 · 활용 채널 ${rows.length}건`;
+  if(!rows.length){ $("deployBody").innerHTML=`<tr><td colspan="5" style="padding:30px;text-align:center;color:var(--hint)">확정된 인플루언서의 활용 채널이 없어요.</td></tr>`; return; }
+  let html="", lastA=null;
+  rows.forEach(({inf,pk})=>{
+    const ang=inf.angle||"미지정";
+    if(ang!==lastA){ html+=`<tr class="grp"><td colspan="5">${ang}</td></tr>`; lastA=ang; }
+    const id="r_"+inf.order+"_"+pk; const res=S.results.find(r=>r.id===id)||{};
+    const tier=inf.role==="influencer"&&inf.tier?` · <span class="tier-${inf.tier}">${inf.tier}</span>`:"";
+    const url=inf[pk]&&inf[pk].url;
+    const ch=url?`<a class="exec-link" href="${url}" target="_blank" rel="noopener" onclick="event.stopPropagation()">${PLAT[pk].l}</a>`:PLAT[pk].l;
+    html+=`<tr class="done" data-o="${inf.order}" data-p="${pk}">
+      <td><span class="nm-main">${inf.name}</span></td>
+      <td><span class="ch-badge"><i class="ti ti-${PLAT[pk].icon}"></i> ${ch}</span></td>
+      <td><span class="badge ${ROLE[inf.role].b}">${ROLE[inf.role].l}${tier}</span></td>
+      <td>${res.schedule?res.schedule:'<span class="r-empty">일정 미정</span>'}</td>
+      <td class="r"><i class="ti ti-${res.schedule?"edit":"plus"}" style="color:var(--muted)"></i></td></tr>`;
+  });
+  $("deployBody").innerHTML=html;
+  $("deployBody").querySelectorAll("tr.done").forEach(tr=>tr.onclick=e=>{ if(e.target.closest("a"))return; openResult(+tr.dataset.o,tr.dataset.p); });
+}
 function recalcER(){ const dg=id=>parseInt(($("r-"+id).value||"").replace(/[^\d]/g,""),10)||0; const v=dg("views"); const e=dg("likes")+dg("comments")+dg("shares"); $("r-er").value=v?((e/v*100).toFixed(2)+"%"):"–"; }
 function openResult(o,p){
   editingResult={o,p}; const inf=S.infs.find(i=>i.order===o); const id="r_"+o+"_"+p; const r=S.results.find(x=>x.id===id)||null;
   $("rTitle").textContent=`${inf?inf.name:""} · ${PLAT[p].l}`;
+  $("r-schedule").value=r?(r.schedule||""):"";
   $("r-url").value=r?(r.url||""):((inf&&inf[p]&&inf[p].url)||"");
   $("r-archive").value=r?(r.archive||""):""; $("r-date").value=r?(r.date||""):"";
   ["views","likes","comments","shares"].forEach(k=>$("r-"+k).value=(r&&r[k]!=null)?r[k]:"");
@@ -811,14 +870,14 @@ function openResult(o,p){
 async function saveResult(){
   const {o,p}=editingResult; const id="r_"+o+"_"+p; const inf=S.infs.find(i=>i.order===o);
   const nn=k=>{ const s=($("r-"+k).value||"").replace(/[^\d]/g,""); return s?parseInt(s,10):null; };
-  const obj={ id, infOrder:o, infName:inf?inf.name:"", platform:p, url:$("r-url").value.trim()||null, archive:$("r-archive").value.trim()||null, date:$("r-date").value.trim()||null, views:nn("views"), likes:nn("likes"), comments:nn("comments"), shares:nn("shares"), note:$("r-note").value.trim()||null };
+  const obj={ id, infOrder:o, infName:inf?inf.name:"", platform:p, schedule:$("r-schedule").value.trim()||null, url:$("r-url").value.trim()||null, archive:$("r-archive").value.trim()||null, date:$("r-date").value.trim()||null, views:nn("views"), likes:nn("likes"), comments:nn("comments"), shares:nn("shares"), note:$("r-note").value.trim()||null };
   $("rSave").textContent="저장 중…"; $("rSave").disabled=true;
-  try{ await setDoc(doc(db,"campaigns",CID,"results",id),obj); const i=S.results.findIndex(x=>x.id===id); if(i>=0)S.results[i]=obj; else S.results.push(obj); $("resultOv").classList.remove("open"); renderExec(); }
+  try{ await setDoc(doc(db,"campaigns",CID,"results",id),obj); const i=S.results.findIndex(x=>x.id===id); if(i>=0)S.results[i]=obj; else S.results.push(obj); $("resultOv").classList.remove("open"); renderExec(); renderDeploy(); }
   catch(e){ alert("저장 실패: "+e.message); }
   $("rSave").textContent="저장"; $("rSave").disabled=false;
 }
 async function deleteResult(){ const {o,p}=editingResult; const id="r_"+o+"_"+p; if(!confirm("이 집행 결과를 삭제할까요?"))return;
-  try{ await deleteDoc(doc(db,"campaigns",CID,"results",id)); S.results=S.results.filter(x=>x.id!==id); $("resultOv").classList.remove("open"); renderExec(); }catch(e){ alert("삭제 실패: "+e.message); } }
+  try{ await deleteDoc(doc(db,"campaigns",CID,"results",id)); S.results=S.results.filter(x=>x.id!==id); $("resultOv").classList.remove("open"); renderExec(); renderDeploy(); }catch(e){ alert("삭제 실패: "+e.message); } }
 async function exportXlsx(){
   if(typeof ExcelJS==="undefined"){ alert("엑셀 모듈 로딩 실패 — 새로고침 후 다시 시도."); return; }
   const rows=execRows();
@@ -863,54 +922,60 @@ async function showHome(){
   const cs=await getDocs(collection(db,"campaigns"));
   renderHome(cs.docs.map(d=>({id:d.id,...d.data()})));
 }
+let homeList=[]; let editingCampId=null;
 function campCard(c){
   const col=c.brandColor||"#E24B4A";
   const sched=(c.startDate||c.endDate)?`${fmtD(c.startDate)||"?"} ~ ${fmtD(c.endDate)||"?"}`:"일정 미정";
-  const stageL=c.stage==="proposal"?"제안 단계":(c.stage||"");
   return `<div class="camp-card${c.archived?" arch":""}" data-id="${c.id}">
     <div class="camp-bar" style="background:${col}"></div>
     <div class="camp-body">
       <div class="camp-brand"><span class="bdot" style="background:${col}"></span>${c.brand||"브랜드 미정"}</div>
       <div class="camp-name">${c.name||"(이름 없음)"}</div>
       <div class="camp-meta"><span><i class="ti ti-calendar"></i>${sched}</span></div>
-      ${stageL?`<span class="camp-stage">${stageL}</span>`:""}
       <div class="camp-menu">
+        <button data-act="edit" data-id="${c.id}">수정</button>
         <button data-act="${c.archived?"unarch":"arch"}" data-id="${c.id}">${c.archived?"복원":"보관"}</button>
         <button data-act="del" data-id="${c.id}">삭제</button>
       </div>
     </div></div>`;
 }
 function renderHome(list){
-  list.sort((a,b)=>(b.createdAt||0)-(a.createdAt||0));
-  const active=list.filter(c=>!c.archived), arch=list.filter(c=>c.archived);
+  homeList=list.slice().sort((a,b)=>(b.createdAt||0)-(a.createdAt||0));
+  const active=homeList.filter(c=>!c.archived), arch=homeList.filter(c=>c.archived);
   document.getElementById("campGrid").innerHTML=active.length?active.map(campCard).join(""):`<div class="camp-empty">아직 캠페인이 없어요. <b>새 캠페인</b>으로 시작하세요.</div>`;
   document.getElementById("archWrap").innerHTML=arch.length?`<div class="arch-h">보관함</div><div class="camp-grid">${arch.map(campCard).join("")}</div>`:"";
   document.querySelectorAll(".camp-card").forEach(card=>card.onclick=e=>{ if(e.target.closest(".camp-menu"))return; location.href=location.pathname+"?campaign="+card.dataset.id; });
   document.querySelectorAll(".camp-menu button").forEach(b=>b.onclick=async e=>{ e.stopPropagation(); const id=b.dataset.id,act=b.dataset.act;
+    if(act==="edit"){ openCampModal(homeList.find(c=>c.id===id)); return; }
     try{ if(act==="del"){ if(!confirm("이 캠페인을 삭제할까요? (되돌릴 수 없어요)"))return; await deleteDoc(doc(db,"campaigns",id)); }
       else{ await updateDoc(doc(db,"campaigns",id),{archived:act==="arch"}); }
       showHome();
     }catch(err){ alert("처리 실패: "+err.message); } });
 }
-function openNewCamp(){
-  ncColor=PALETTE[0];
-  document.getElementById("ncSwatches").innerHTML=PALETTE.map(c=>`<span class="swatch${c===ncColor?" on":""}" data-c="${c}" style="background:${c}"></span>`).join("");
+function openCampModal(c){
+  editingCampId=c?c.id:null;
+  ncColor=(c&&c.brandColor)||PALETTE[0];
+  document.querySelector("#newCampOv .modal h2").textContent=c?"캠페인 수정":"새 캠페인";
+  document.getElementById("ncSwatches").innerHTML=PALETTE.map(x=>`<span class="swatch${x===ncColor?" on":""}" data-c="${x}" style="background:${x}"></span>`).join("");
   document.querySelectorAll("#ncSwatches .swatch").forEach(s=>s.onclick=()=>{ ncColor=s.dataset.c; document.querySelectorAll("#ncSwatches .swatch").forEach(x=>x.classList.toggle("on",x===s)); });
-  $("nc-brand").value="";$("nc-name").value="";$("nc-start").value="";$("nc-end").value="";
+  $("nc-brand").value=c?(c.brand||""):""; $("nc-name").value=c?(c.name||""):""; $("nc-start").value=c?(c.startDate||""):""; $("nc-end").value=c?(c.endDate||""):"";
+  $("ncCreate").textContent=c?"저장":"생성";
   document.getElementById("newCampOv").classList.add("open");
 }
-async function createCamp(){
+async function saveCamp(){
   const brand=$("nc-brand").value.trim(), name=$("nc-name").value.trim();
   if(!name){ alert("캠페인명을 입력하세요."); return; }
-  const id="c_"+Date.now().toString(36);
-  $("ncCreate").textContent="생성 중…"; $("ncCreate").disabled=true;
-  try{ await setDoc(doc(db,"campaigns",id),{name,brand:brand||null,brandColor:ncColor,startDate:$("nc-start").value||null,endDate:$("nc-end").value||null,stage:"proposal",archived:false,createdAt:Date.now()});
-    location.href=location.pathname+"?campaign="+id;
-  }catch(e){ alert("생성 실패: "+e.message); $("ncCreate").textContent="생성"; $("ncCreate").disabled=false; }
+  const data={name,brand:brand||null,brandColor:ncColor,startDate:$("nc-start").value||null,endDate:$("nc-end").value||null};
+  $("ncCreate").disabled=true;
+  try{
+    if(editingCampId){ await updateDoc(doc(db,"campaigns",editingCampId),data); document.getElementById("newCampOv").classList.remove("open"); showHome(); }
+    else{ const id="c_"+Date.now().toString(36); await setDoc(doc(db,"campaigns",id),{...data,stage:"proposal",archived:false,createdAt:Date.now()}); location.href=location.pathname+"?campaign="+id; }
+  }catch(e){ alert("실패: "+e.message); }
+  $("ncCreate").disabled=false;
 }
-document.getElementById("newCampBtn").onclick=openNewCamp;
+document.getElementById("newCampBtn").onclick=()=>openCampModal(null);
 document.getElementById("ncCancel").onclick=()=>document.getElementById("newCampOv").classList.remove("open");
-document.getElementById("ncCreate").onclick=createCamp;
+document.getElementById("ncCreate").onclick=saveCamp;
 document.getElementById("newCampOv").onclick=e=>{ if(e.target.id==="newCampOv") e.currentTarget.classList.remove("open"); };
 { const hb=document.getElementById("homeBtn"); if(hb) hb.onclick=()=>location.href=location.pathname; }
 
