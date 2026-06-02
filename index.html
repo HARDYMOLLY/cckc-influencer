@@ -100,6 +100,31 @@ tr.reco{background:#FBF6EA}
 body.client .agency-only{display:none!important}
 body.client tbody tr:not(.reco):not(.confirm):not(.grp){opacity:.4}
 body.client tbody tr.reco{outline:1.5px solid #FAC775;outline-offset:-1.5px}
+.drawer-ov{position:fixed;inset:0;background:rgba(0,0,0,.35);opacity:0;pointer-events:none;transition:opacity .2s;z-index:50}
+.drawer-ov.open{opacity:1;pointer-events:auto}
+.drawer{position:fixed;top:0;right:0;height:100%;width:430px;max-width:92vw;background:var(--card);box-shadow:-8px 0 30px rgba(0,0,0,.12);transform:translateX(100%);transition:transform .25s;z-index:51;overflow-y:auto;padding:20px 22px}
+.drawer-ov.open .drawer{transform:translateX(0)}
+.dh{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
+.dh .t{font-size:17px;font-weight:600}
+.dh .x{cursor:pointer;color:var(--muted);font-size:20px;line-height:1}
+.fld{display:flex;flex-direction:column;gap:6px;margin-bottom:12px}
+.fld label{font-size:12px;color:var(--muted)}
+.fld input,.fld select,.fld textarea{font-family:inherit;font-size:13px;border:.5px solid var(--line);border-radius:8px;padding:8px 10px;background:var(--card);color:var(--ink);width:100%}
+.fld textarea{min-height:48px;resize:vertical}
+.frow{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.plat{border:.5px solid var(--line);border-radius:10px;padding:10px;margin-bottom:8px}
+.plat-h{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;font-size:13px}
+.plat-h .use{font-size:12px;display:flex;align-items:center;gap:5px;cursor:pointer;color:var(--ok)}
+.plat input{font-family:inherit;font-size:12.5px;border:.5px solid var(--line);border-radius:7px;padding:7px 9px;width:100%;color:var(--ink);background:var(--card)}
+.metrics{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-top:7px}
+.flags{display:flex;gap:18px;background:var(--bg);border-radius:8px;padding:10px 12px;margin:6px 0 16px}
+.flags label{font-size:13px;display:flex;align-items:center;gap:6px;cursor:pointer}
+.dbtns{display:flex;gap:8px;padding-bottom:8px}
+.dbtns button{flex:1;font-family:inherit;font-size:14px;padding:11px;border-radius:9px;cursor:pointer;border:.5px solid var(--line);background:var(--card);color:var(--ink)}
+.dbtns .save{flex:2;background:var(--accent);color:#fff;border-color:transparent;font-weight:500}
+.dbtns .del{flex:0 0 auto;color:#A32D2D;border-color:#F09595}
+.section-l{font-size:12px;font-weight:500;color:var(--muted);margin:6px 0 8px;display:flex;align-items:center;gap:6px}
+tbody tr:not(.grp){cursor:default}
 .price-tbu{color:var(--hint)}
 </style>
 </head>
@@ -155,7 +180,7 @@ body.client tbody tr.reco{outline:1.5px solid #FAC775;outline-offset:-1.5px}
         <option value="followers">팔로워 많은순</option>
       </select>
     </div>
-    <button class="addbtn agency-only"><i class="ti ti-plus"></i> 인플루언서 추가</button>
+    <button class="addbtn agency-only" id="addBtn"><i class="ti ti-plus"></i> 인플루언서 추가</button>
   </div>
 
   <div class="tablewrap">
@@ -169,9 +194,54 @@ body.client tbody tr.reco{outline:1.5px solid #FAC775;outline-offset:-1.5px}
   </div>
 </div>
 
+<div class="drawer-ov" id="drawerOv">
+  <div class="drawer" id="drawer">
+    <div class="dh"><span class="t" id="dTitle">인플루언서 등록</span><span class="x" id="dClose"><i class="ti ti-x"></i></span></div>
+    <div class="fld"><label>인플루언서명</label><input id="d-name" type="text" placeholder="이름 또는 채널명"/></div>
+    <div class="frow">
+      <div class="fld"><label>역할</label><select id="d-role"><option value="influencer">인플루언서</option><option value="powerpage">파워페이지</option><option value="etc">기타</option></select></div>
+      <div class="fld" id="d-tier-wrap"><label>티어</label><select id="d-tier"><option value="">–</option><option>Super</option><option>Mega</option><option>Micro</option></select></div>
+    </div>
+    <div class="frow">
+      <div class="fld"><label>앵글</label><select id="d-angle"></select></div>
+      <div class="fld"><label>진행 단가</label><input id="d-price" type="text" placeholder="TBU 또는 숫자"/></div>
+    </div>
+    <div class="section-l"><i class="ti ti-link"></i> 채널 &amp; 지표 · 보유 URL + 활용 + 피처링 지표</div>
+    <div class="plat">
+      <div class="plat-h"><span style="color:#C13584"><i class="ti ti-brand-instagram"></i> 인스타그램</span><label class="use"><input type="checkbox" id="d-ig-use"/> 활용</label></div>
+      <input id="d-ig-url" type="text" placeholder="채널 URL"/>
+      <div class="metrics"><input id="d-ig-fol" placeholder="팔로워"/><input id="d-ig-view" placeholder="조회수"/><input id="d-ig-er" placeholder="ER %"/></div>
+    </div>
+    <div class="plat">
+      <div class="plat-h"><span style="color:#E0322B"><i class="ti ti-brand-youtube"></i> 유튜브</span><label class="use"><input type="checkbox" id="d-yt-use"/> 활용</label></div>
+      <input id="d-yt-url" type="text" placeholder="채널 URL"/>
+      <div class="metrics"><input id="d-yt-fol" placeholder="팔로워"/><input id="d-yt-view" placeholder="조회수"/><input id="d-yt-er" placeholder="ER %"/></div>
+    </div>
+    <div class="plat">
+      <div class="plat-h"><span><i class="ti ti-brand-tiktok"></i> 틱톡</span><label class="use"><input type="checkbox" id="d-tt-use"/> 활용</label></div>
+      <input id="d-tt-url" type="text" placeholder="채널 URL"/>
+      <div class="metrics"><input id="d-tt-fol" placeholder="팔로워"/><input id="d-tt-view" placeholder="조회수"/><input id="d-tt-er" placeholder="ER %"/></div>
+    </div>
+    <div class="frow">
+      <div class="fld"><label>팔로워 Age</label><input id="d-age" type="text" placeholder="예: 1834 (57%)"/></div>
+      <div class="fld"><label>Gender</label><input id="d-gender" type="text" placeholder="예: 여성 58%"/></div>
+    </div>
+    <div class="fld"><label>비고</label><textarea id="d-note"></textarea></div>
+    <div class="flags">
+      <label><input type="checkbox" id="d-reco"/> <i class="ti ti-star" style="color:var(--amber)"></i> 추천</label>
+      <label><input type="checkbox" id="d-confirm"/> <i class="ti ti-circle-check" style="color:var(--ok)"></i> 확정</label>
+    </div>
+    <div class="dbtns">
+      <button class="del" id="dDelete" title="삭제" style="display:none"><i class="ti ti-trash"></i></button>
+      <button id="dCancel">취소</button>
+      <button class="save" id="dSave">저장</button>
+    </div>
+  </div>
+</div>
+
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import { getFirestore, doc, getDoc, collection, getDocs, updateDoc }
+import { getFirestore, doc, getDoc, collection, getDocs, updateDoc, setDoc, deleteDoc }
   from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 const firebaseConfig={apiKey:"AIzaSyCDRt36nsZ3Lz7HPnhiuM4oz65K_L8ZtGI",authDomain:"cckc-influencer.firebaseapp.com",projectId:"cckc-influencer",storageBucket:"cckc-influencer.firebasestorage.app",messagingSenderId:"107148864410",appId:"1:107148864410:web:452630d0fa500fbe90a823"};
@@ -196,8 +266,8 @@ function channels(inf){
     const p=inf[k]||{}; const owned=p.followers!=null||p.use;
     if(!owned) continue;
     const cls=p.use?("use-"+k):"";
-    const href=inf.url||"#";
-    out+=`<a class="${cls}" href="${href}" target="_blank" rel="noopener" title="${k.toUpperCase()}"><i class="ti ti-${map[k]}"></i></a>`;
+    const href=(inf[k]&&inf[k].url)||inf.url||"#";
+    out+=`<a class="${cls}" href="${href}" target="_blank" rel="noopener" title="${k.toUpperCase()}" onclick="event.stopPropagation()"><i class="ti ti-${map[k]}"></i></a>`;
   }
   return `<span class="chs">${out||'<span style="color:var(--hint)">–</span>'}</span>`;
 }
@@ -270,8 +340,8 @@ function render(){
   document.body.classList.toggle("client", S.clientMode);
   document.getElementById("clientbar").style.display=S.clientMode?"flex":"none";
   const vb=document.getElementById("viewBtn");
-  vb.classList.toggle("on", S.clientMode);
-  vb.innerHTML=S.clientMode?'<i class="ti ti-arrow-back-up"></i> 에이전시 뷰로':'<i class="ti ti-eye"></i> 광고주 뷰';
+  vb.style.display=S.clientMode?"none":"flex";
+  if(!S.clientMode) vb.innerHTML='<i class="ti ti-link"></i> 광고주 링크 복사';
   // kpis
   const propCnt=S.infs.length;
   document.getElementById("kpis").innerHTML=`
@@ -295,7 +365,7 @@ function render(){
     const tier=inf.role==="influencer"&&inf.tier?` · <span class="tier-${inf.tier}">${inf.tier}</span>`:"";
     const er=p.er!=null?`<span class="${p.er>=0.05?"er-hi":""}">${(p.er*100).toFixed(1)}%</span>`:"–";
     const price=typeof inf.price==="number"?`<span class="num">${won(inf.price)}</span>`:`<span class="price-tbu">TBU</span>`;
-    html+=`<tr class="${trcls}">
+    html+=`<tr class="${trcls}" data-oid="${inf.order}">
       <td><span class="stcell">
         <i class="ti ti-star star ${inf.recommend?"":"off"}"></i>
         <i class="ti ti-circle-check toggle ${inf.proceed?"on":""}" data-id="${inf.order}" title="진행 확정 토글"></i>
@@ -310,7 +380,13 @@ function render(){
     </tr>`;
   }
   document.getElementById("tbody").innerHTML=html;
-  document.querySelectorAll(".toggle").forEach(t=>t.onclick=()=>toggleConfirm(+t.dataset.id));
+  document.querySelectorAll(".toggle").forEach(t=>t.onclick=e=>{e.stopPropagation();toggleConfirm(+t.dataset.id);});
+  if(!S.clientMode){
+    document.querySelectorAll("#tbody tr:not(.grp)").forEach(tr=>{
+      tr.style.cursor="pointer";
+      tr.onclick=e=>{ if(e.target.closest(".toggle")||e.target.closest("a")) return; openDrawer(+tr.dataset.oid); };
+    });
+  }
 }
 
 async function toggleConfirm(order){
@@ -322,7 +398,79 @@ async function toggleConfirm(order){
 
 document.getElementById("axis").onclick=e=>{const b=e.target.closest("button"); if(b){S.axis=b.dataset.axis; render();}};
 document.getElementById("sort").onchange=e=>{S.sort=e.target.value; render();};
-document.getElementById("viewBtn").onclick=()=>{S.clientMode=!S.clientMode; render();};
+document.getElementById("viewBtn").onclick=async()=>{
+  const url=location.origin+location.pathname+"?view=client";
+  try{await navigator.clipboard.writeText(url);}catch(e){}
+  const vb=document.getElementById("viewBtn"); const o=vb.innerHTML;
+  vb.innerHTML='<i class="ti ti-check"></i> 복사됨'; setTimeout(()=>vb.innerHTML=o,1500);
+};
+
+// ---------- Drawer ----------
+const $=id=>document.getElementById(id);
+function parseNum(s){ if(s==null)return null; s=(""+s).trim().replace(/,/g,""); if(!s)return null; const m=s.match(/^([\d.]+)\s*([KkMm]?)/); if(!m)return null; let n=parseFloat(m[1]); const u=m[2].toUpperCase(); if(u==="K")n*=1e3; if(u==="M")n*=1e6; return Math.round(n); }
+function parseER(s){ if(s==null)return null; s=(""+s).trim().replace("%",""); if(!s)return null; const n=parseFloat(s); return isNaN(n)?null:n/100; }
+function parsePrice(s){ if(s==null)return null; s=(""+s).trim().replace(/,/g,""); if(!s||s.toUpperCase()==="TBU")return null; const n=parseInt(s,10); return isNaN(n)?null:n; }
+function domGuess(url,k){ if(!url)return false; const u=url.toLowerCase(); return (k==="ig"&&u.includes("instagram"))||(k==="yt"&&(u.includes("youtube")||u.includes("youtu.be")))||(k==="tt"&&u.includes("tiktok")); }
+let editing=null;
+function fillPlat(k,inf){
+  const p=(inf&&inf[k])||{};
+  $("d-"+k+"-use").checked=!!p.use;
+  $("d-"+k+"-url").value=p.url||(inf&&domGuess(inf.url,k)?inf.url:"");
+  $("d-"+k+"-fol").value=p.followers!=null?p.followers:"";
+  $("d-"+k+"-view").value=p.views!=null?p.views:"";
+  $("d-"+k+"-er").value=p.er!=null?(p.er*100).toFixed(2).replace(/\.?0+$/,""):"";
+}
+function readPlat(k){ return {use:$("d-"+k+"-use").checked, url:$("d-"+k+"-url").value.trim()||null, followers:parseNum($("d-"+k+"-fol").value), views:parseNum($("d-"+k+"-view").value), er:parseER($("d-"+k+"-er").value)}; }
+function syncTier(){ $("d-tier-wrap").style.display=$("d-role").value==="influencer"?"flex":"none"; }
+function openDrawer(order){
+  editing=(order==null?null:order);
+  const inf=editing!=null?S.infs.find(i=>i.order===editing):null;
+  $("dTitle").textContent=inf?"인플루언서 수정":"인플루언서 등록";
+  $("d-angle").innerHTML='<option value="">미지정</option>'+S.angles.map(a=>`<option value="${a.name}">${a.name}</option>`).join("");
+  $("d-name").value=inf?inf.name:"";
+  $("d-role").value=inf?inf.role:"influencer";
+  $("d-tier").value=inf&&inf.tier?inf.tier:"";
+  $("d-angle").value=inf?(inf.angle||""):"";
+  $("d-price").value=inf&&typeof inf.price==="number"?inf.price:"";
+  fillPlat("ig",inf); fillPlat("yt",inf); fillPlat("tt",inf);
+  $("d-age").value=inf?(inf.demoAge||""):"";
+  $("d-gender").value=inf?(inf.demoGender||""):"";
+  $("d-note").value=inf?(inf.note||""):"";
+  $("d-reco").checked=inf?!!inf.recommend:false;
+  $("d-confirm").checked=inf?!!inf.proceed:false;
+  $("dDelete").style.display=inf?"flex":"none";
+  syncTier(); $("drawerOv").classList.add("open");
+}
+function closeDrawer(){ $("drawerOv").classList.remove("open"); }
+async function saveDrawer(){
+  const name=$("d-name").value.trim(); if(!name){ alert("인플루언서명을 입력하세요."); return; }
+  const prev=editing!=null?(S.infs.find(i=>i.order===editing)||{}):{};
+  const order=editing!=null?editing:(Math.max(-1,...S.infs.map(i=>i.order))+1);
+  const role=$("d-role").value;
+  const ig=readPlat("ig"), yt=readPlat("yt"), tt=readPlat("tt");
+  const obj={ name, url:ig.url||yt.url||tt.url||prev.url||null, recommend:$("d-reco").checked, proceed:$("d-confirm").checked,
+    role, tier:(role==="influencer"?($("d-tier").value||null):null), angle:$("d-angle").value||"", angleGroup:prev.angleGroup||"",
+    price:parsePrice($("d-price").value), ig, yt, tt,
+    demoAge:$("d-age").value.trim()||null, demoGender:$("d-gender").value.trim()||null, note:$("d-note").value.trim()||null, order };
+  $("dSave").textContent="저장 중…"; $("dSave").disabled=true;
+  try{
+    await setDoc(doc(db,"campaigns",CID,"influencers","inf_"+order),obj);
+    const idx=S.infs.findIndex(i=>i.order===order);
+    if(idx>=0) S.infs[idx]=obj; else S.infs.push(obj);
+    closeDrawer(); render();
+  }catch(e){ alert("저장 실패: "+e.message); }
+  $("dSave").textContent="저장"; $("dSave").disabled=false;
+}
+async function deleteDrawer(){
+  if(editing==null) return;
+  if(!confirm("이 인플루언서를 삭제할까요?")) return;
+  try{ await deleteDoc(doc(db,"campaigns",CID,"influencers","inf_"+editing)); S.infs=S.infs.filter(i=>i.order!==editing); closeDrawer(); render(); }
+  catch(e){ alert("삭제 실패: "+e.message); }
+}
+$("addBtn").onclick=()=>openDrawer(null);
+$("dClose").onclick=closeDrawer; $("dCancel").onclick=closeDrawer; $("dSave").onclick=saveDrawer; $("dDelete").onclick=deleteDrawer;
+$("d-role").onchange=syncTier;
+$("drawerOv").onclick=e=>{ if(e.target.id==="drawerOv") closeDrawer(); };
 
 async function load(){
   const cs=await getDoc(doc(db,"campaigns",CID)); S.campaign=cs.data();
