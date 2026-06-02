@@ -166,6 +166,38 @@ tbody tr:not(.grp){cursor:default}
 .exec-link{color:#185FA5;text-decoration:none}
 .exec-link:hover{text-decoration:underline}
 .r-empty{color:var(--hint)}
+.homebtn{cursor:pointer;color:var(--muted);margin-right:2px;display:inline-flex;align-items:center}
+.homebtn:hover{color:var(--ink)}
+.home{max-width:1000px;margin:0 auto;padding:34px 20px}
+.home-head{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:24px}
+.home-head h1{font-size:22px;font-weight:600}
+.home-head .sub{font-size:13px;color:var(--muted);margin-top:5px}
+.newbtn{background:var(--ink);color:#fff;border:none;border-radius:10px;padding:11px 18px;font-family:inherit;font-size:14px;font-weight:500;cursor:pointer;display:inline-flex;align-items:center;gap:7px}
+.camp-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px}
+.camp-card{background:var(--card);border:.5px solid var(--line);border-radius:14px;cursor:pointer;overflow:hidden;transition:box-shadow .15s,transform .15s;position:relative}
+.camp-card:hover{box-shadow:0 6px 20px rgba(0,0,0,.08);transform:translateY(-2px)}
+.camp-bar{height:6px}
+.camp-body{padding:16px 18px}
+.camp-brand{display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--muted);margin-bottom:8px}
+.camp-brand .bdot{width:9px;height:9px;border-radius:50%}
+.camp-name{font-size:16px;font-weight:600;margin-bottom:10px;line-height:1.35;padding-right:60px}
+.camp-meta{font-size:12px;color:var(--muted);display:flex;flex-direction:column;gap:3px}
+.camp-meta i{margin-right:4px}
+.camp-stage{position:absolute;top:15px;right:15px;font-size:10.5px;background:var(--ok-bg);color:var(--ok);padding:2px 8px;border-radius:20px}
+.camp-menu{position:absolute;bottom:12px;right:12px;display:flex;gap:6px;opacity:0;transition:opacity .15s}
+.camp-card:hover .camp-menu{opacity:1}
+.camp-menu button{font-family:inherit;font-size:11px;border:.5px solid var(--line);background:var(--card);color:var(--muted);border-radius:7px;padding:4px 9px;cursor:pointer}
+.camp-menu button:hover{color:var(--ink)}
+.camp-empty{grid-column:1/-1;text-align:center;color:var(--hint);padding:54px;font-size:14px}
+.arch-h{font-size:13px;color:var(--muted);margin:28px 0 12px;font-weight:500}
+.camp-card.arch{opacity:.55}
+.modal-ov{position:fixed;inset:0;background:rgba(0,0,0,.4);display:none;align-items:center;justify-content:center;z-index:60;padding:20px}
+.modal-ov.open{display:flex}
+.modal{background:var(--card);border-radius:16px;padding:24px;width:420px;max-width:100%}
+.modal h2{font-size:17px;font-weight:600;margin-bottom:18px}
+.swatches{display:flex;gap:8px;flex-wrap:wrap}
+.swatch{width:26px;height:26px;border-radius:50%;cursor:pointer;border:2px solid transparent}
+.swatch.on{border-color:var(--ink)}
 .topgrid{display:grid;grid-template-columns:1.5fr 1fr;gap:12px;align-items:stretch;width:100%}
 @media(max-width:760px){.topgrid{grid-template-columns:1fr}}
 .bud-card{background:var(--card);border:.5px solid var(--line);border-radius:14px;padding:14px 16px}
@@ -187,9 +219,19 @@ tbody tr:not(.grp){cursor:default}
 </style>
 </head>
 <body>
+<div class="home" id="home" style="display:none">
+  <div class="home-head">
+    <div><h1>캠페인</h1><div class="sub">코카-콜라 인플루언서 캠페인 관리</div></div>
+    <button class="newbtn" id="newCampBtn"><i class="ti ti-plus"></i> 새 캠페인</button>
+  </div>
+  <div class="camp-grid" id="campGrid"></div>
+  <div id="archWrap"></div>
+</div>
+
 <div class="wrap">
   <header>
     <div class="title">
+      <span class="homebtn agency-only" id="homeBtn" title="홈으로"><i class="ti ti-arrow-left"></i></span>
       <span class="dot" id="brandDot"></span>
       <h1 id="cName">불러오는 중…</h1>
       <span class="stage" id="stage"></span>
@@ -389,7 +431,24 @@ tbody tr:not(.grp){cursor:default}
   </div>
 </div>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<div class="modal-ov" id="newCampOv">
+  <div class="modal">
+    <h2>새 캠페인</h2>
+    <div class="fld"><label>브랜드 <span style="color:var(--hint)">코카-콜라 제품 브랜드</span></label><input id="nc-brand" placeholder="예: 스프라이트"/></div>
+    <div class="fld"><label>브랜드 색</label><div class="swatches" id="ncSwatches"></div></div>
+    <div class="fld"><label>캠페인명</label><input id="nc-name" placeholder="예: 스프라이트 위드 티 런칭"/></div>
+    <div class="pgrid">
+      <div class="fld"><label>시작일</label><input id="nc-start" type="date"/></div>
+      <div class="fld"><label>종료일</label><input id="nc-end" type="date"/></div>
+    </div>
+    <div class="dbtns" style="margin-top:6px">
+      <button id="ncCancel">취소</button>
+      <button class="save" id="ncCreate">생성</button>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.4.0/exceljs.min.js"></script>
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import { getFirestore, doc, getDoc, collection, getDocs, updateDoc, setDoc, deleteDoc }
@@ -397,7 +456,7 @@ import { getFirestore, doc, getDoc, collection, getDocs, updateDoc, setDoc, dele
 
 const firebaseConfig={apiKey:"AIzaSyCDRt36nsZ3Lz7HPnhiuM4oz65K_L8ZtGI",authDomain:"cckc-influencer.firebaseapp.com",projectId:"cckc-influencer",storageBucket:"cckc-influencer.firebasestorage.app",messagingSenderId:"107148864410",appId:"1:107148864410:web:452630d0fa500fbe90a823"};
 const app=initializeApp(firebaseConfig); const db=getFirestore(app);
-const CID="sprite-with-tea";
+const CID=new URLSearchParams(location.search).get("campaign");
 
 const S={campaign:null,angles:[],infs:[],results:[],axis:"role",sort:"angle",clientMode:new URLSearchParams(location.search).get("view")==="client"};
 
@@ -760,14 +819,33 @@ async function saveResult(){
 }
 async function deleteResult(){ const {o,p}=editingResult; const id="r_"+o+"_"+p; if(!confirm("이 집행 결과를 삭제할까요?"))return;
   try{ await deleteDoc(doc(db,"campaigns",CID,"results",id)); S.results=S.results.filter(x=>x.id!==id); $("resultOv").classList.remove("open"); renderExec(); }catch(e){ alert("삭제 실패: "+e.message); } }
-function exportXlsx(){
-  if(typeof XLSX==="undefined"){ alert("엑셀 모듈 로딩 실패 — 네트워크 확인 후 새로고침."); return; }
-  const data=execRows().map(x=>{ const r=x.res||{}; const er=x.res?erCalc(x.res):null;
-    return {인플루언서:x.name,채널:PLAT[x.p].l,"원본 URL":r.url||"",아카이브:r.archive||"",게시일:r.date||"",조회수:r.views??"",좋아요:r.likes??"",댓글:r.comments??"",공유:r.shares??"","Total ER":er!=null?(er*100).toFixed(2)+"%":"",비고:r.note||""}; });
-  const ws=XLSX.utils.json_to_sheet(data);
-  ws["!cols"]=[{wch:18},{wch:10},{wch:32},{wch:32},{wch:12},{wch:10},{wch:9},{wch:8},{wch:8},{wch:10},{wch:24}];
-  const wb=XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb,ws,"집행성과");
-  XLSX.writeFile(wb,`${(S.campaign&&S.campaign.name)||"campaign"}_집행성과.xlsx`);
+async function exportXlsx(){
+  if(typeof ExcelJS==="undefined"){ alert("엑셀 모듈 로딩 실패 — 새로고침 후 다시 시도."); return; }
+  const rows=execRows();
+  const wb=new ExcelJS.Workbook();
+  const ws=wb.addWorksheet("집행성과",{views:[{state:"frozen",xSplit:2,ySplit:2}]});
+  ws.columns=[18,11,26,11,9,11,8,13,14,30,24,12,11,9,7,7,10,22].map(w=>({width:w}));
+  ws.mergeCells("A1:A2"); ws.mergeCells("B1:B2"); ws.mergeCells("C1:I1"); ws.mergeCells("J1:R1");
+  ws.getCell("A1").value="인플루언서"; ws.getCell("B1").value="채널"; ws.getCell("C1").value="채널 정보"; ws.getCell("J1").value="집행 결과";
+  const names=["링크","팔로워","Age","Gender","티어","섭외비","섭외 부대비용","원본 URL","아카이브","게시일","조회수","좋아요","댓글","공유","Total ER","비고"];
+  names.forEach((v,i)=>ws.getCell(2,i+3).value=v);
+  const brand="FF"+(((S.campaign&&S.campaign.brandColor)||"#E24B4A").replace("#","").toUpperCase());
+  const dark="FF222222"; const thin={style:"thin",color:{argb:"FFBFBFBF"}}; const bd={top:thin,left:thin,right:thin,bottom:thin};
+  const hdr=(cell,bg)=>{ cell.fill={type:"pattern",pattern:"solid",fgColor:{argb:bg}}; cell.font={bold:true,color:{argb:"FFFFFFFF"},size:11}; cell.alignment={horizontal:"center",vertical:"middle",wrapText:true}; cell.border=bd; };
+  hdr(ws.getCell("A1"),brand); hdr(ws.getCell("B1"),brand); hdr(ws.getCell("C1"),brand); hdr(ws.getCell("J1"),dark);
+  for(let c=3;c<=9;c++) hdr(ws.getCell(2,c),brand);
+  for(let c=10;c<=18;c++) hdr(ws.getCell(2,c),dark);
+  rows.forEach(x=>{ const inf=S.infs.find(i=>i.order===x.o)||{}; const pl=inf[x.p]||{}; const r=x.res||{}; const er=x.res?erCalc(x.res):null;
+    ws.addRow([ x.name, PLAT[x.p].l, pl.url||inf.url||"", pl.followers??"", inf.demoAge||"", inf.demoGender||"", inf.tier||"", infCasting(inf)||"", infExtra(inf)||"", r.url||"", r.archive||"", r.date||"", r.views??"", r.likes??"", r.comments??"", r.shares??"", er!=null?er:"", r.note||"" ]); });
+  const numCols=[4,8,9,13,14,15,16];
+  for(let rr=3;rr<=ws.rowCount;rr++){ for(let c=1;c<=18;c++){ const cell=ws.getCell(rr,c); cell.border=bd; cell.font={size:10.5}; cell.alignment={vertical:"middle"};
+      if(numCols.includes(c)){ cell.numFmt="#,##0"; cell.alignment={horizontal:"right",vertical:"middle"}; }
+      if(c===17){ cell.numFmt="0.00%"; cell.alignment={horizontal:"right",vertical:"middle"}; } }
+    ws.getRow(rr).height=18; }
+  ws.getRow(1).height=20; ws.getRow(2).height=24;
+  const buf=await wb.xlsx.writeBuffer();
+  const blob=new Blob([buf],{type:"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"});
+  const a=document.createElement("a"); a.href=URL.createObjectURL(blob); a.download=`${(S.campaign&&S.campaign.name)||"campaign"}_집행성과.xlsx`; a.click(); setTimeout(()=>URL.revokeObjectURL(a.href),1500);
 }
 $("rClose").onclick=()=>$("resultOv").classList.remove("open");
 $("rCancel").onclick=()=>$("resultOv").classList.remove("open");
@@ -776,6 +854,66 @@ $("resultOv").onclick=e=>{ if(e.target.id==="resultOv") $("resultOv").classList.
 ["views","likes","comments","shares"].forEach(k=>$("r-"+k).oninput=recalcER);
 $("exportBtn").onclick=exportXlsx;
 
+// ---------- 홈 · 캠페인 관리 ----------
+const PALETTE=["#E24B4A","#E8833A","#E0A82E","#1E9E62","#0F9D9D","#2D7FF9","#7A5AF8","#D45D9E","#5B6470","#1a1a18"];
+let ncColor=PALETTE[0];
+function fmtD(s){ if(!s)return null; const d=(""+s).split("-"); return d.length===3?`${d[0]}.${d[1]}.${d[2]}`:s; }
+async function showHome(){
+  document.getElementById("home").style.display="block"; document.title="캠페인 · 코카-콜라";
+  const cs=await getDocs(collection(db,"campaigns"));
+  renderHome(cs.docs.map(d=>({id:d.id,...d.data()})));
+}
+function campCard(c){
+  const col=c.brandColor||"#E24B4A";
+  const sched=(c.startDate||c.endDate)?`${fmtD(c.startDate)||"?"} ~ ${fmtD(c.endDate)||"?"}`:"일정 미정";
+  const stageL=c.stage==="proposal"?"제안 단계":(c.stage||"");
+  return `<div class="camp-card${c.archived?" arch":""}" data-id="${c.id}">
+    <div class="camp-bar" style="background:${col}"></div>
+    <div class="camp-body">
+      <div class="camp-brand"><span class="bdot" style="background:${col}"></span>${c.brand||"브랜드 미정"}</div>
+      <div class="camp-name">${c.name||"(이름 없음)"}</div>
+      <div class="camp-meta"><span><i class="ti ti-calendar"></i>${sched}</span></div>
+      ${stageL?`<span class="camp-stage">${stageL}</span>`:""}
+      <div class="camp-menu">
+        <button data-act="${c.archived?"unarch":"arch"}" data-id="${c.id}">${c.archived?"복원":"보관"}</button>
+        <button data-act="del" data-id="${c.id}">삭제</button>
+      </div>
+    </div></div>`;
+}
+function renderHome(list){
+  list.sort((a,b)=>(b.createdAt||0)-(a.createdAt||0));
+  const active=list.filter(c=>!c.archived), arch=list.filter(c=>c.archived);
+  document.getElementById("campGrid").innerHTML=active.length?active.map(campCard).join(""):`<div class="camp-empty">아직 캠페인이 없어요. <b>새 캠페인</b>으로 시작하세요.</div>`;
+  document.getElementById("archWrap").innerHTML=arch.length?`<div class="arch-h">보관함</div><div class="camp-grid">${arch.map(campCard).join("")}</div>`:"";
+  document.querySelectorAll(".camp-card").forEach(card=>card.onclick=e=>{ if(e.target.closest(".camp-menu"))return; location.href=location.pathname+"?campaign="+card.dataset.id; });
+  document.querySelectorAll(".camp-menu button").forEach(b=>b.onclick=async e=>{ e.stopPropagation(); const id=b.dataset.id,act=b.dataset.act;
+    try{ if(act==="del"){ if(!confirm("이 캠페인을 삭제할까요? (되돌릴 수 없어요)"))return; await deleteDoc(doc(db,"campaigns",id)); }
+      else{ await updateDoc(doc(db,"campaigns",id),{archived:act==="arch"}); }
+      showHome();
+    }catch(err){ alert("처리 실패: "+err.message); } });
+}
+function openNewCamp(){
+  ncColor=PALETTE[0];
+  document.getElementById("ncSwatches").innerHTML=PALETTE.map(c=>`<span class="swatch${c===ncColor?" on":""}" data-c="${c}" style="background:${c}"></span>`).join("");
+  document.querySelectorAll("#ncSwatches .swatch").forEach(s=>s.onclick=()=>{ ncColor=s.dataset.c; document.querySelectorAll("#ncSwatches .swatch").forEach(x=>x.classList.toggle("on",x===s)); });
+  $("nc-brand").value="";$("nc-name").value="";$("nc-start").value="";$("nc-end").value="";
+  document.getElementById("newCampOv").classList.add("open");
+}
+async function createCamp(){
+  const brand=$("nc-brand").value.trim(), name=$("nc-name").value.trim();
+  if(!name){ alert("캠페인명을 입력하세요."); return; }
+  const id="c_"+Date.now().toString(36);
+  $("ncCreate").textContent="생성 중…"; $("ncCreate").disabled=true;
+  try{ await setDoc(doc(db,"campaigns",id),{name,brand:brand||null,brandColor:ncColor,startDate:$("nc-start").value||null,endDate:$("nc-end").value||null,stage:"proposal",archived:false,createdAt:Date.now()});
+    location.href=location.pathname+"?campaign="+id;
+  }catch(e){ alert("생성 실패: "+e.message); $("ncCreate").textContent="생성"; $("ncCreate").disabled=false; }
+}
+document.getElementById("newCampBtn").onclick=openNewCamp;
+document.getElementById("ncCancel").onclick=()=>document.getElementById("newCampOv").classList.remove("open");
+document.getElementById("ncCreate").onclick=createCamp;
+document.getElementById("newCampOv").onclick=e=>{ if(e.target.id==="newCampOv") e.currentTarget.classList.remove("open"); };
+{ const hb=document.getElementById("homeBtn"); if(hb) hb.onclick=()=>location.href=location.pathname; }
+
 async function load(){
   const cs=await getDoc(doc(db,"campaigns",CID)); S.campaign=cs.data();
   const as=await getDocs(collection(db,"campaigns",CID,"angles")); S.angles=as.docs.map(d=>d.data()).sort((a,b)=>b.weight-a.weight);
@@ -783,7 +921,12 @@ async function load(){
   try{ const rs=await getDocs(collection(db,"campaigns",CID,"results")); S.results=rs.docs.map(d=>d.data()); }catch(e){ S.results=[]; }
   render();
 }
-load().catch(e=>{document.getElementById("tbody").innerHTML=`<tr><td colspan="9" class="loading">불러오기 실패: ${e.message}</td></tr>`;});
+if(CID){
+  load().catch(e=>{document.getElementById("tbody").innerHTML=`<tr><td colspan="9" class="loading">불러오기 실패: ${e.message}</td></tr>`;});
+}else{
+  document.querySelector(".wrap").style.display="none";
+  showHome().catch(e=>{document.getElementById("campGrid").innerHTML=`<div class="camp-empty">불러오기 실패: ${e.message}</div>`;});
+}
 </script>
 </body>
 </html>
