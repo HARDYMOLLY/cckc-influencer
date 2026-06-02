@@ -1,98 +1,296 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>CCKC 인플루언서 — 연결 테스트</title>
-<link rel="preconnect" href="https://fonts.googleapis.com" />
-<link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@400;500;600&display=swap" rel="stylesheet" />
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>CCKC 인플루언서 보드</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css"/>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/dist/tabler-icons.min.css"/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
 <style>
-  * { box-sizing: border-box; }
-  body {
-    margin: 0; min-height: 100vh;
-    font-family: "Pretendard", -apple-system, sans-serif;
-    background: #f7f7f5; color: #1a1a1a;
-    display: flex; align-items: center; justify-content: center; padding: 24px;
-  }
-  .card {
-    width: 100%; max-width: 460px; background: #fff;
-    border: 0.5px solid #e3e1da; border-radius: 16px; padding: 28px;
-  }
-  .brand { display: flex; align-items: center; gap: 8px; margin-bottom: 20px; }
-  .dot { width: 10px; height: 10px; border-radius: 50%; background: #E24B4A; }
-  .brand span { font-size: 15px; font-weight: 600; }
-  h1 { font-size: 18px; font-weight: 600; margin: 0 0 4px; }
-  .sub { font-size: 13px; color: #76746c; margin: 0 0 22px; }
-  .status {
-    display: flex; align-items: center; gap: 10px;
-    padding: 16px; border-radius: 12px; background: #f1efe8;
-    font-size: 15px; font-weight: 500; margin-bottom: 14px;
-  }
-  .status.ok { background: #e1f5ee; color: #0f6e56; }
-  .status.fail { background: #fcebeb; color: #a32d2d; }
-  .spin {
-    width: 16px; height: 16px; border: 2px solid #c9c7be; border-top-color: #76746c;
-    border-radius: 50%; animation: r 0.8s linear infinite;
-  }
-  @keyframes r { to { transform: rotate(360deg); } }
-  .meta { font-size: 12px; color: #76746c; line-height: 1.8; }
-  .meta b { color: #1a1a1a; font-weight: 500; }
-  code { font-family: ui-monospace, monospace; font-size: 11px; word-break: break-all; }
+:root{
+  --accent:#E24B4A; --ink:#1a1a18; --muted:#76746c; --hint:#a3a199;
+  --line:#e8e6df; --bg:#f6f5f1; --card:#ffffff;
+  --infl:#534AB7; --infl-bg:#EEEDFE; --pp:#854F0B; --pp-bg:#FAEEDA; --etc:#5F5E5A; --etc-bg:#F1EFE8;
+  --ok:#0F6E56; --ok-bg:#E1F5EE; --amber:#BA7517;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:"Pretendard",sans-serif;background:var(--bg);color:var(--ink);font-size:14px;line-height:1.5}
+.num{font-family:"JetBrains Mono",monospace;font-variant-numeric:tabular-nums}
+.wrap{max-width:1080px;margin:0 auto;padding:28px 24px 80px}
+header{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:22px}
+.title{display:flex;align-items:center;gap:10px}
+.dot{width:11px;height:11px;border-radius:50%;background:var(--accent)}
+.title h1{font-size:19px;font-weight:600;letter-spacing:-.01em}
+.stage{font-size:12px;color:#0C447C;background:#E6F1FB;padding:3px 10px;border-radius:20px;font-weight:500}
+.hbtns{display:flex;gap:6px}
+.hbtn{font-size:12.5px;color:var(--muted);border:.5px solid var(--line);background:var(--card);padding:6px 11px;border-radius:8px;cursor:pointer;display:flex;align-items:center;gap:5px}
+.hbtn:hover{border-color:#cfcdc4}
+
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-bottom:18px}
+.kpi{background:var(--card);border:.5px solid var(--line);border-radius:12px;padding:13px 15px}
+.kpi .l{font-size:12px;color:var(--muted);margin-bottom:5px}
+.kpi .v{font-size:20px;font-weight:600}
+.kpi .v small{font-size:12px;color:var(--hint);font-weight:400}
+
+.cmp{background:var(--card);border:.5px solid var(--line);border-radius:14px;padding:16px 18px;margin-bottom:18px}
+.cmp-top{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:14px}
+.cmp-top .lab{font-size:14px;font-weight:600;display:flex;align-items:center;gap:7px}
+.axis{display:flex;gap:5px}
+.axis button{font-size:12px;color:var(--muted);border:.5px solid var(--line);background:transparent;padding:4px 11px;border-radius:20px;cursor:pointer}
+.axis button.on{background:var(--infl-bg);color:#3C3489;border-color:transparent;font-weight:500}
+.cmp-cols{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media(max-width:620px){.cmp-cols{grid-template-columns:1fr}}
+.cmp-col .ch{display:flex;justify-content:space-between;align-items:center;margin-bottom:11px}
+.cmp-col .ch .t{font-size:13px;font-weight:500;display:flex;align-items:center;gap:6px}
+.cmp-col .ch .c{font-size:12px;color:var(--hint)}
+.row-bar{display:flex;align-items:center;gap:8px;margin-bottom:9px}
+.row-bar .nm{font-size:11.5px;color:var(--muted);width:64px;flex-shrink:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.track{position:relative;flex:1;height:12px;background:#efeee8;border-radius:6px}
+.fill{position:absolute;left:0;top:0;height:12px;border-radius:6px}
+.tick{position:absolute;top:-2px;height:16px;border-left:2px dashed #b9b7ae}
+.row-bar .pc{font-size:11.5px;width:34px;text-align:right;flex-shrink:0}
+.legend{font-size:11px;color:var(--hint);margin-top:6px}
+
+.toolbar{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:9px}
+.toolbar .sg{display:flex;align-items:center;gap:7px;font-size:12.5px;color:var(--muted)}
+.toolbar select{font-family:inherit;font-size:12.5px;color:var(--ink);border:.5px solid var(--line);border-radius:8px;padding:5px 9px;background:var(--card);cursor:pointer}
+.addbtn{font-size:12.5px;color:var(--muted);border:.5px solid #cfcdc4;background:var(--card);padding:6px 11px;border-radius:8px;cursor:pointer;display:flex;align-items:center;gap:5px}
+
+.tablewrap{background:var(--card);border:.5px solid var(--line);border-radius:14px;overflow:hidden}
+table{width:100%;border-collapse:collapse;font-size:12.5px}
+thead th{background:#faf9f5;color:var(--muted);font-weight:500;text-align:left;padding:10px 12px;white-space:nowrap;position:sticky;top:0}
+thead th.r{text-align:right}
+tbody td{padding:10px 12px;border-top:.5px solid var(--line);vertical-align:middle}
+tbody td.r{text-align:right}
+tr.confirm{background:var(--ok-bg)}
+tr.reco{background:#FBF6EA}
+.grp td{background:#f2f1ea;color:var(--muted);font-weight:500;font-size:11.5px;padding:6px 12px;letter-spacing:.02em}
+.stcell{display:flex;align-items:center;gap:7px;white-space:nowrap}
+.star{color:var(--amber);font-size:13px}
+.star.off{color:transparent}
+.toggle{cursor:pointer;font-size:18px;line-height:1;color:var(--hint)}
+.toggle.on{color:var(--ok)}
+.nm-main{font-weight:500}
+.chs{display:flex;gap:7px;font-size:14px}
+.chs a{color:#cdccc4;text-decoration:none}
+.chs a.use-ig{color:#C13584}.chs a.use-yt{color:#E0322B}.chs a.use-tt{color:#111}
+.chs a:hover{opacity:.7}
+.badge{font-size:11px;padding:2px 8px;border-radius:20px;white-space:nowrap}
+.b-infl{background:var(--infl-bg);color:#3C3489}.b-pp{background:var(--pp-bg);color:var(--pp)}.b-etc{background:var(--etc-bg);color:var(--etc)}
+.tier-Super{color:#A32D2D}.tier-Mega{color:#534AB7}.tier-Micro{color:#993556}
+.er-hi{color:var(--ok);font-weight:500}
+.loading{padding:60px;text-align:center;color:var(--muted)}
+.angle-c{color:var(--muted)}
+.price-tbu{color:var(--hint)}
 </style>
 </head>
 <body>
-  <div class="card">
-    <div class="brand"><span class="dot"></span><span>CCKC 인플루언서 매니저</span></div>
-    <h1>0단계 · 연결 테스트</h1>
-    <p class="sub">앱이 Firestore 데이터베이스에 제대로 연결됐는지 확인합니다.</p>
-
-    <div class="status" id="status">
-      <span class="spin"></span>
-      <span id="statusText">연결 확인 중…</span>
+<div class="wrap">
+  <header>
+    <div class="title">
+      <span class="dot" id="brandDot"></span>
+      <h1 id="cName">불러오는 중…</h1>
+      <span class="stage" id="stage"></span>
     </div>
-
-    <div class="meta" id="meta">
-      프로젝트: <b id="proj">—</b>
+    <div class="hbtns">
+      <button class="hbtn"><i class="ti ti-eye"></i> 광고주 뷰</button>
+      <button class="hbtn"><i class="ti ti-download"></i> 견적</button>
     </div>
+  </header>
+
+  <div class="kpis" id="kpis"></div>
+
+  <div class="cmp" id="cmp" style="display:none">
+    <div class="cmp-top">
+      <span class="lab"><i class="ti ti-scale"></i> 계획 대비 비중 <span style="font-weight:400;color:var(--hint);font-size:12px">· 인원 기준</span></span>
+      <div class="axis" id="axis">
+        <button data-axis="angle">앵글</button>
+        <button data-axis="role" class="on">역할</button>
+        <button data-axis="tier">티어</button>
+      </div>
+    </div>
+    <div class="cmp-cols">
+      <div class="cmp-col">
+        <div class="ch"><span class="t"><i class="ti ti-bulb" style="color:#185FA5"></i> 에이전시 추천</span><span class="c" id="recoCnt"></span></div>
+        <div id="recoBars"></div>
+      </div>
+      <div class="cmp-col">
+        <div class="ch"><span class="t"><i class="ti ti-circle-check" style="color:var(--ok)"></i> 광고주 확정</span><span class="c" id="confCnt"></span></div>
+        <div id="confBars"></div>
+      </div>
+    </div>
+    <div class="legend">점선 = 계획 비중 · 막대 = 실제 비중(인원 기준) · 단가 채워지면 예산 기준으로 전환 가능</div>
   </div>
 
+  <div class="toolbar">
+    <div class="sg">
+      <i class="ti ti-arrows-sort"></i> 정렬
+      <select id="sort">
+        <option value="angle">앵글별</option>
+        <option value="roletier">역할·티어별(등록순)</option>
+        <option value="reco">추천 상태순</option>
+        <option value="followers">팔로워 많은순</option>
+      </select>
+    </div>
+    <button class="addbtn"><i class="ti ti-plus"></i> 인플루언서 추가</button>
+  </div>
+
+  <div class="tablewrap">
+    <table>
+      <thead><tr>
+        <th>상태</th><th>인플루언서</th><th>채널</th><th>역할·티어</th><th>앵글</th>
+        <th class="r">팔로워</th><th class="r">ER</th><th class="r">진행단가</th>
+      </tr></thead>
+      <tbody id="tbody"><tr><td colspan="8" class="loading">데이터 불러오는 중…</td></tr></tbody>
+    </table>
+  </div>
+</div>
+
 <script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-  import { getFirestore, doc, setDoc, getDoc, serverTimestamp }
-    from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getFirestore, doc, getDoc, collection, getDocs, updateDoc }
+  from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-  const firebaseConfig = {
-    apiKey: "AIzaSyCDRt36nsZ3Lz7HPnhiuM4oz65K_L8ZtGI",
-    authDomain: "cckc-influencer.firebaseapp.com",
-    projectId: "cckc-influencer",
-    storageBucket: "cckc-influencer.firebasestorage.app",
-    messagingSenderId: "107148864410",
-    appId: "1:107148864410:web:452630d0fa500fbe90a823"
-  };
+const firebaseConfig={apiKey:"AIzaSyCDRt36nsZ3Lz7HPnhiuM4oz65K_L8ZtGI",authDomain:"cckc-influencer.firebaseapp.com",projectId:"cckc-influencer",storageBucket:"cckc-influencer.firebasestorage.app",messagingSenderId:"107148864410",appId:"1:107148864410:web:452630d0fa500fbe90a823"};
+const app=initializeApp(firebaseConfig); const db=getFirestore(app);
+const CID="sprite-with-tea";
 
-  const statusEl = document.getElementById("status");
-  const statusText = document.getElementById("statusText");
-  const meta = document.getElementById("meta");
-  document.getElementById("proj").textContent = firebaseConfig.projectId;
+const S={campaign:null,angles:[],infs:[],axis:"role",sort:"angle"};
 
-  try {
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
+const fmt=n=>{ if(n==null) return "–"; if(n>=1e6) return (n/1e6).toFixed(n%1e6?1:0)+"M"; if(n>=1e3) return (n/1e3).toFixed(n%1e3?1:0)+"K"; return ""+n; };
+const won=n=>n==null?null:n.toLocaleString("ko-KR");
+const ROLE={influencer:{l:"인플",b:"b-infl"},powerpage:{l:"파워페이지",b:"b-pp"},etc:{l:"기타",b:"b-etc"}};
 
-    await setDoc(doc(db, "_healthcheck", "ping"), {
-      at: serverTimestamp(),
-      from: "0단계 연결 테스트"
-    });
-    const snap = await getDoc(doc(db, "_healthcheck", "ping"));
-
-    statusEl.className = "status ok";
-    statusText.textContent = "✅ Firestore 연결 성공";
-    meta.innerHTML = `프로젝트: <b>${firebaseConfig.projectId}</b><br>읽기/쓰기: <b>정상</b> (테스트 문서 생성·조회 완료)<br>이제 Firestore에 <b>_healthcheck</b> 컬렉션이 보일 거예요.`;
-  } catch (e) {
-    statusEl.className = "status fail";
-    statusText.textContent = "❌ 연결 실패";
-    meta.innerHTML = `프로젝트: <b>${firebaseConfig.projectId}</b><br>오류: <code>${e.message}</code>`;
+function primary(inf){
+  const ps=["ig","yt","tt"].map(k=>({k,...(inf[k]||{})})).filter(p=>p.followers!=null);
+  if(!ps.length) return {followers:null,er:null};
+  return ps.sort((a,b)=>(b.followers||0)-(a.followers||0))[0];
+}
+function channels(inf){
+  const map={ig:"brand-instagram",yt:"brand-youtube",tt:"brand-tiktok"};
+  let out="";
+  for(const k of ["ig","yt","tt"]){
+    const p=inf[k]||{}; const owned=p.followers!=null||p.use;
+    if(!owned) continue;
+    const cls=p.use?("use-"+k):"";
+    const href=inf.url||"#";
+    out+=`<a class="${cls}" href="${href}" target="_blank" rel="noopener" title="${k.toUpperCase()}"><i class="ti ti-${map[k]}"></i></a>`;
   }
+  return `<span class="chs">${out||'<span style="color:var(--hint)">–</span>'}</span>`;
+}
+
+function axisCats(){
+  if(S.axis==="role") return [{k:"influencer",l:"인플루언서"},{k:"powerpage",l:"파워페이지"},{k:"etc",l:"기타"}];
+  if(S.axis==="tier") return [{k:"Super",l:"Super"},{k:"Mega",l:"Mega"},{k:"Micro",l:"Micro"}];
+  return S.angles.map(a=>({k:a.name,l:a.name}));
+}
+function catOf(inf){ if(S.axis==="role")return inf.role; if(S.axis==="tier")return inf.tier; return inf.angle||""; }
+function planVal(k){
+  const pw=S.campaign.planWeights||{};
+  if(S.axis==="role")return (pw.role||{})[k]||0;
+  if(S.axis==="tier")return (pw.tier||{})[k]||0;
+  const a=S.angles.find(x=>x.name===k); return a?a.weight:0;
+}
+function shares(set){
+  const cats=axisCats(); const tot=set.length||1; const m={};
+  cats.forEach(c=>m[c.k]=0);
+  set.forEach(i=>{const c=catOf(i); if(c in m) m[c]++;});
+  cats.forEach(c=>m[c.k]=Math.round(m[c.k]/tot*100));
+  return m;
+}
+function barsHtml(set){
+  const cats=axisCats(); const sh=shares(set); const color=set===recoSet()?"#85B7EB":"#5DCAA5";
+  return cats.map(c=>{
+    const v=sh[c.k]||0, plan=planVal(c.k);
+    return `<div class="row-bar"><span class="nm" title="${c.l}">${c.l}</span>
+      <div class="track"><div class="fill" style="width:${v}%;background:${color}"></div><div class="tick" style="left:${plan}%"></div></div>
+      <span class="pc num">${v}%</span></div>`;
+  }).join("");
+}
+const recoSet=()=>S.infs.filter(i=>i.recommend);
+const confSet=()=>S.infs.filter(i=>i.proceed);
+
+function sortInfs(){
+  const a=[...S.infs];
+  if(S.sort==="followers") return a.sort((x,y)=>(primary(y).followers||0)-(primary(x).followers||0));
+  if(S.sort==="reco") return a.sort((x,y)=>(y.recommend-x.recommend)|| (y.proceed-x.proceed)|| (x.order-y.order));
+  if(S.sort==="roletier"){
+    const ro={influencer:0,powerpage:1,etc:2}, ti={Super:0,Mega:1,Micro:2};
+    return a.sort((x,y)=>(ro[x.role]-ro[y.role])||((ti[x.tier]??9)-(ti[y.tier]??9))||(x.order-y.order));
+  }
+  return a.sort((x,y)=>{const ax=S.angles.findIndex(g=>g.name===x.angle), ay=S.angles.findIndex(g=>g.name===y.angle); return ((ax<0?99:ax)-(ay<0?99:ay))||(x.order-y.order);});
+}
+function groupKey(inf){ if(S.sort==="angle")return inf.angle||"미지정 (파워페이지/기타)"; if(S.sort==="roletier")return ROLE[inf.role].l; return null; }
+
+function render(){
+  S.campaign && (document.getElementById("cName").textContent=S.campaign.name);
+  if(S.campaign){
+    document.getElementById("stage").textContent=S.campaign.stage==="proposal"?"제안 단계":S.campaign.stage;
+    document.getElementById("brandDot").style.background=S.campaign.brandColor||"#E24B4A";
+    document.documentElement.style.setProperty("--accent",S.campaign.brandColor||"#E24B4A");
+  }
+  // kpis
+  const b=S.campaign?.budget||{};
+  const confSum=confSet().reduce((s,i)=>s+(typeof i.price==="number"?i.price:0),0);
+  document.getElementById("kpis").innerHTML=`
+    <div class="kpi"><div class="l">총 예산 (견적)</div><div class="v num">${won(b.total)||"–"}</div></div>
+    <div class="kpi"><div class="l">추천 / 확정</div><div class="v num">${recoSet().length} <small>추천</small> · ${confSet().length} <small>확정</small></div></div>
+    <div class="kpi"><div class="l">확정 섭외비 합</div><div class="v num">${won(confSum)} <small>원</small></div></div>
+    <div class="kpi"><div class="l">전체 인플루언서</div><div class="v num">${S.infs.length} <small>명</small></div></div>`;
+  // comparison
+  document.getElementById("cmp").style.display="block";
+  document.getElementById("recoCnt").textContent=recoSet().length+"명";
+  document.getElementById("confCnt").textContent=confSet().length+"명";
+  document.getElementById("recoBars").innerHTML=barsHtml(recoSet());
+  document.getElementById("confBars").innerHTML=barsHtml(confSet());
+  [...document.querySelectorAll("#axis button")].forEach(btn=>btn.classList.toggle("on",btn.dataset.axis===S.axis));
+  // table
+  const rows=sortInfs(); let html=""; let lastG=null;
+  for(const inf of rows){
+    const g=groupKey(inf);
+    if(g!==null && g!==lastG){ html+=`<tr class="grp"><td colspan="8">${g}</td></tr>`; lastG=g; }
+    const p=primary(inf);
+    const trcls=inf.proceed?"confirm":(inf.recommend?"reco":"");
+    const tier=inf.role==="influencer"&&inf.tier?` · <span class="tier-${inf.tier}">${inf.tier}</span>`:"";
+    const er=p.er!=null?`<span class="${p.er>=0.05?"er-hi":""}">${(p.er*100).toFixed(1)}%</span>`:"–";
+    const price=typeof inf.price==="number"?`<span class="num">${won(inf.price)}</span>`:`<span class="price-tbu">TBU</span>`;
+    html+=`<tr class="${trcls}">
+      <td><span class="stcell">
+        <i class="ti ti-star star ${inf.recommend?"":"off"}"></i>
+        <i class="ti ti-circle-check toggle ${inf.proceed?"on":""}" data-id="${inf.order}" title="진행 확정 토글"></i>
+      </span></td>
+      <td><span class="nm-main">${inf.name}</span></td>
+      <td>${channels(inf)}</td>
+      <td><span class="badge ${ROLE[inf.role].b}">${ROLE[inf.role].l}${tier}</span></td>
+      <td class="angle-c">${inf.angle||"–"}</td>
+      <td class="r num">${fmt(p.followers)}</td>
+      <td class="r num">${er}</td>
+      <td class="r">${price}</td>
+    </tr>`;
+  }
+  document.getElementById("tbody").innerHTML=html;
+  document.querySelectorAll(".toggle").forEach(t=>t.onclick=()=>toggleConfirm(+t.dataset.id));
+}
+
+async function toggleConfirm(order){
+  const inf=S.infs.find(i=>i.order===order); if(!inf) return;
+  const nv=!inf.proceed; inf.proceed=nv; render();
+  try{ await updateDoc(doc(db,"campaigns",CID,"influencers","inf_"+order),{proceed:nv}); }
+  catch(e){ inf.proceed=!nv; render(); alert("저장 실패: "+e.message); }
+}
+
+document.getElementById("axis").onclick=e=>{const b=e.target.closest("button"); if(b){S.axis=b.dataset.axis; render();}};
+document.getElementById("sort").onchange=e=>{S.sort=e.target.value; render();};
+
+async function load(){
+  const cs=await getDoc(doc(db,"campaigns",CID)); S.campaign=cs.data();
+  const as=await getDocs(collection(db,"campaigns",CID,"angles")); S.angles=as.docs.map(d=>d.data()).sort((a,b)=>b.weight-a.weight);
+  const is=await getDocs(collection(db,"campaigns",CID,"influencers")); S.infs=is.docs.map(d=>d.data()).sort((a,b)=>a.order-b.order);
+  render();
+}
+load().catch(e=>{document.getElementById("tbody").innerHTML=`<tr><td colspan="8" class="loading">불러오기 실패: ${e.message}</td></tr>`;});
 </script>
 </body>
 </html>
