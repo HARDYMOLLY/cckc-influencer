@@ -1,0 +1,1311 @@
+<!DOCTYPE html>
+<html lang="ko"><head><meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>CCKC 시드 — 데이터 주입</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@400;500;600&display=swap" rel="stylesheet"/>
+<style>
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;font-family:"Pretendard",sans-serif;background:#f7f7f5;color:#1a1a1a;display:flex;align-items:center;justify-content:center;padding:24px}
+.card{width:100%;max-width:480px;background:#fff;border:.5px solid #e3e1da;border-radius:16px;padding:28px}
+.brand{display:flex;align-items:center;gap:8px;margin-bottom:18px}
+.dot{width:10px;height:10px;border-radius:50%;background:#E24B4A}
+.brand span{font-size:15px;font-weight:600}
+h1{font-size:18px;font-weight:600;margin:0 0 4px}
+.sub{font-size:13px;color:#76746c;margin:0 0 18px;line-height:1.6}
+.box{background:#f1efe8;border-radius:12px;padding:14px;font-size:13px;color:#444;line-height:1.9;margin-bottom:16px}
+.box b{color:#1a1a1a;font-weight:500}
+button{width:100%;padding:12px;border:none;border-radius:10px;background:#185FA5;color:#fff;font-size:15px;font-weight:500;font-family:inherit;cursor:pointer}
+button:disabled{background:#c9c7be;cursor:default}
+.log{margin-top:14px;font-size:12px;color:#76746c;line-height:1.8;white-space:pre-wrap}
+.ok{color:#0f6e56;font-weight:500}
+.fail{color:#a32d2d}
+</style></head>
+<body>
+<div class="card">
+  <div class="brand"><span class="dot"></span><span>CCKC 인플루언서 매니저</span></div>
+  <h1>1단계 · 데이터 시드</h1>
+  <p class="sub">마스터 엑셀에서 변환한 캠페인 데이터를 Firestore에 주입합니다.<br>한 번만 누르면 되고, 다시 눌러도 덮어쓰기라 중복 안 생겨요.</p>
+  <div class="box">
+    캠페인: <b>스프라이트 위드 티 런칭</b><br>
+    앵글: <b>3개</b> · 인플루언서: <b>36명</b><br>
+    예산 총계: <b>99,890,000원</b>
+  </div>
+  <button id="run" onclick="runSeed()">시드 실행 →</button>
+  <div class="log" id="log"></div>
+</div>
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getFirestore, doc, setDoc, serverTimestamp }
+  from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+const firebaseConfig = {
+  apiKey:"AIzaSyCDRt36nsZ3Lz7HPnhiuM4oz65K_L8ZtGI",
+  authDomain:"cckc-influencer.firebaseapp.com",
+  projectId:"cckc-influencer",
+  storageBucket:"cckc-influencer.firebasestorage.app",
+  messagingSenderId:"107148864410",
+  appId:"1:107148864410:web:452630d0fa500fbe90a823"
+};
+const SEED = {
+ "campaign": {
+  "id": "sprite-with-tea",
+  "name": "스프라이트 위드 티 런칭",
+  "brand": "코카-콜라",
+  "brandColor": "#E24B4A",
+  "stage": "proposal",
+  "target": {
+   "main": "2030 여성",
+   "sub": "2030 남성",
+   "traits": "릴스 유머 추구, 유행 민감, doom-scroller",
+   "positioning": "더운 여름 언제든 가볍게 먹을 수 있는 음료로 포지셔닝"
+  },
+  "budget": {
+   "casting": 83900000,
+   "production": 1000000,
+   "seeding": 6000000,
+   "agencyFee": 8990000,
+   "total": 99890000
+  },
+  "planWeights": {
+   "role": {
+    "influencer": 85,
+    "powerpage": 15,
+    "etc": 0
+   },
+   "tier": {
+    "Super": 0,
+    "Mega": 50,
+    "Micro": 35
+   }
+  }
+ },
+ "angles": [
+  {
+   "id": "a1",
+   "name": "제품 펫네임 스위티",
+   "weight": 41
+  },
+  {
+   "id": "a2",
+   "name": "이색조합 특별한 맛",
+   "weight": 39
+  },
+  {
+   "id": "a3",
+   "name": "해외 SNS 레시피",
+   "weight": 18
+  }
+ ],
+ "influencers": [
+  {
+   "name": "미남재형(YT)",
+   "url": "https://www.youtube.com/@sigmajjj",
+   "recommend": true,
+   "proceed": false,
+   "role": "influencer",
+   "tier": "Super",
+   "angle": "제품 펫네임 스위티",
+   "angleGroup": "펫네임 FYP 채널",
+   "price": null,
+   "ig": {
+    "use": true,
+    "followers": 89000,
+    "views": 1260000,
+    "er": 0.1849
+   },
+   "yt": {
+    "use": true,
+    "followers": 819000,
+    "views": 1970000,
+    "er": 0.022
+   },
+   "tt": {
+    "use": false,
+    "followers": null,
+    "views": null,
+    "er": null
+   },
+   "demoAge": "2544(57.5%)",
+   "demoGender": "남성 71%",
+   "note": "",
+   "order": 0
+  },
+  {
+   "name": "아인이놀아주기",
+   "url": "https://www.instagram.com/ainbag9_/",
+   "recommend": false,
+   "proceed": false,
+   "role": "influencer",
+   "tier": "Mega",
+   "angle": "제품 펫네임 스위티",
+   "angleGroup": "펫네임 FYP 채널",
+   "price": null,
+   "ig": {
+    "use": true,
+    "followers": 323000,
+    "views": 2150000,
+    "er": 0.2228
+   },
+   "yt": {
+    "use": false,
+    "followers": null,
+    "views": null,
+    "er": null
+   },
+   "tt": {
+    "use": false,
+    "followers": null,
+    "views": null,
+    "er": null
+   },
+   "demoAge": "1834 (66.8%)",
+   "demoGender": "여성 56%",
+   "note": "",
+   "order": 1
+  },
+  {
+   "name": "승헌쓰",
+   "url": "https://www.instagram.com/feellikefeel1/",
+   "recommend": false,
+   "proceed": false,
+   "role": "influencer",
+   "tier": "Mega",
+   "angle": "제품 펫네임 스위티",
+   "angleGroup": "펫네임 FYP 채널",
+   "price": null,
+   "ig": {
+    "use": true,
+    "followers": 528000,
+    "views": 1660000,
+    "er": 0.0799
+   },
+   "yt": {
+    "use": false,
+    "followers": null,
+    "views": null,
+    "er": null
+   },
+   "tt": {
+    "use": false,
+    "followers": null,
+    "views": null,
+    "er": null
+   },
+   "demoAge": "1834 (76.9%)",
+   "demoGender": "남성 55%",
+   "note": "",
+   "order": 2
+  },
+  {
+   "name": "이우곤",
+   "url": "https://www.instagram.com/woogon_y/reels/",
+   "recommend": false,
+   "proceed": false,
+   "role": "influencer",
+   "tier": "Mega",
+   "angle": "제품 펫네임 스위티",
+   "angleGroup": "펫네임 FYP 채널",
+   "price": null,
+   "ig": {
+    "use": true,
+    "followers": 360000,
+    "views": 563000,
+    "er": 0.0461
+   },
+   "yt": {
+    "use": false,
+    "followers": null,
+    "views": null,
+    "er": null
+   },
+   "tt": {
+    "use": false,
+    "followers": null,
+    "views": null,
+    "er": null
+   },
+   "demoAge": "1844(74.2%)",
+   "demoGender": "남성 79%",
+   "note": "",
+   "order": 3
+  },
+  {
+   "name": "불레따리 형님",
+   "url": null,
+   "recommend": false,
+   "proceed": false,
+   "role": "influencer",
+   "tier": "Super",
+   "angle": "제품 펫네임 스위티",
+   "angleGroup": "펫네임 FYP 채널",
+   "price": 13000000,
+   "ig": {
+    "use": true,
+    "followers": 257000,
+    "views": 731000,
+    "er": 0.0546
+   },
+   "yt": {
+    "use": false,
+    "followers": null,
+    "views": null,
+    "er": null
+   },
+   "tt": {
+    "use": false,
+    "followers": null,
+    "views": null,
+    "er": null
+   },
+   "demoAge": "1834 (74%)",
+   "demoGender": "여성 80%",
+   "note": "",
+   "order": 4
+  },
+  {
+   "name": "Lee__71_",
+   "url": "https://www.instagram.com/lee__71_/",
+   "recommend": false,
+   "proceed": false,
+   "role": "influencer",
+   "tier": "Mega",
+   "angle": "제품 펫네임 스위티",
+   "angleGroup": "펫네임 FYP 채널",
+   "price": null,
+   "ig": {
+    "use": true,
+    "followers": 13000,
+    "views": 730000,
+    "er": 0.308
+   },
+   "yt": {
+    "use": false,
+    "followers": null,
+    "views": null,
+    "er": null
+   },
+   "tt": {
+    "use": false,
+    "followers": null,
+    "views": null,
+    "er": null
+   },
+   "demoAge": "1834 (57.7%)",
+   "demoGender": "여성 51%",
+   "note": "",
+   "order": 5
+  },
+  {
+   "name": "장군",
+   "url": "https://www.instagram.com/withmycaptain/",
+   "recommend": false,
+   "proceed": false,
+   "role": "influencer",
+   "tier": "Mega",
+   "angle": "제품 펫네임 스위티",
+   "angleGroup": "펫네임 언어유희",
+   "price": null,
+   "ig": {
+    "use": true,
+    "followers": 131000,
+    "views": 822000,
+    "er": 0.1412
+   },
+   "yt": {
+    "use": false,
+    "followers": null,
+    "views": null,
+    "er": null
+   },
+   "tt": {
+    "use": false,
+    "followers": null,
+    "views": null,
+    "er": null
+   },
+   "demoAge": "1834 (48.3%)",
+   "demoGender": "남성 53%",
+   "note": "",
+   "order": 6
+  },
+  {
+   "name": "이환천의 문학살롱",
+   "url": "https://www.instagram.com/hwan1002/",
+   "recommend": true,
+   "proceed": false,
+   "role": "influencer",
+   "tier": "Mega",
+   "angle": "제품 펫네임 스위티",
+   "angleGroup": "펫네임 언어유희",
+   "price": 3500000,
+   "ig": {
+    "use": true,
+    "followers": 104000,
+    "views": 51000,
+    "er": 0.0397
+   },
+   "yt": {
+    "use": false,
+    "followers": null,
+    "views": null,
+    "er": null
+   },
+   "tt": {
+    "use": false,
+    "followers": null,
+    "views": null,
+    "er": null
+   },
+   "demoAge": "2544 (43.9%)",
+   "demoGender": "남성 82%",
+   "note": "",
+   "order": 7
+  },
+  {
+   "name": "이모지이게모지",
+   "url": "https://www.instagram.com/emoj_igemoji/reels/",
+   "recommend": true,
+   "proceed": false,
+   "role": "influencer",
+   "tier": "Micro",
+   "angle": "제품 펫네임 스위티",
+   "angleGroup": "펫네임 언어유희",
+   "price": null,
+   "ig": {
+    "use": true,
+    "followers": 10000,
+    "views": 565000,
+    "er": 2.2574
+   },
+   "yt": {
+    "use": false,
+    "followers": null,
+    "views": null,
+    "er": null
+   },
+   "tt": {
+    "use": false,
+    "followers": null,
+    "views": null,
+    "er": null
+   },
+   "demoAge": "1834 (56.7%)",
+   "demoGender": "남성 51%",
+   "note": "",
+   "order": 8
+  },
+  {
+   "name": "소파",
+   "url": "https://www.instagram.com/_sofa4844_/",
+   "recommend": true,
+   "proceed": false,
+   "role": "influencer",
+   "tier": "Micro",
+   "angle": "제품 펫네임 스위티",
+   "angleGroup": "펫네임 광고어셋활용",
+   "price": 3000000,
+   "ig": {
+    "use": true,
+    "followers": 47000,
+    "views": 546000,
+    "er": 0.5647
+   },
+   "yt": {
+    "use": true,
+    "followers": 256000,
+    "views": 391000,
+    "er": 0.0198
+   },
+   "tt": {
+    "use": true,
+    "followers": 4000,
+    "views": 950000,
+    "er": 0.2592
+   },
+   "demoAge": "1834 (57%)",
+   "demoGender": "여성 58%",
+   "note": "",
+   "order": 9
+  },
+  {
+   "name": "김재환",
+   "url": "https://www.instagram.com/jaericmoore_ii/reels/",
+   "recommend": false,
+   "proceed": false,
+   "role": "influencer",
+   "tier": "Micro",
+   "angle": "제품 펫네임 스위티",
+   "angleGroup": "펫네임 광고어셋활용",
+   "price": 1500000,
+   "ig": {
+    "use": true,
+    "followers": 7000,
+    "views": 162000,
+    "er": 0.0355
+   },
+   "yt": {
+    "use": false,
+    "followers": null,
+    "views": null,
+    "er": null
+   },
+   "tt": {
+    "use": false,
+    "followers": null,
+    "views": null,
+    "er": null
+   },
+   "demoAge": "1834 (57.7%)",
+   "demoGender": "여성 56%",
+   "note": "",
+   "order": 10
+  },
+  {
+   "name": "젼언니",
+   "url": "https://www.instagram.com/jeon_unni_/",
+   "recommend": false,
+   "proceed": false,
+   "role": "influencer",
+   "tier": "Mega",
+   "angle": "이색조합 특별한 맛",
+   "angleGroup": "이색조합 F&B 채널",
+   "price": null,
+   "ig": {
+    "use": true,
+    "followers": 262000,
+    "views": 423000,
+    "er": 0.0221
+   },
+   "yt": {
+    "use": false,
+    "followers": null,
+    "views": null,
+    "er": null
+   },
+   "tt": {
+    "use": false,
+    "followers": null,
+    "views": null,
+    "er": null
+   },
+   "demoAge": "1834 (63.5%)",
+   "demoGender": "여성 87%",
+   "note": "",
+   "order": 11
+  },
+  {
+   "name": "먹샘",
+   "url": "https://www.instagram.com/thankyousamuch/",
+   "recommend": true,
+   "proceed": false,
+   "role": "influencer",
+   "tier": "Mega",
+   "angle": "이색조합 특별한 맛",
+   "angleGroup": "이색조합 F&B 채널",
+   "price": 6500000,
+   "ig": {
+    "use": true,
+    "followers": 212000,
+    "views": 638000,
+    "er": 0.0294
+   },
+   "yt": {
+    "use": false,
+    "followers": null,
+    "views": null,
+    "er": null
+   },
+   "tt": {
+    "use": false,
+    "followers": null,
+    "views": null,
+    "er": null
+   },
+   "demoAge": "1834 (38.3%)",
+   "demoGender": "남성 51%",
+   "note": "",
+   "order": 12
+  },
+  {
+   "name": "박홍",
+   "url": "https://www.instagram.com/bakkongg/",
+   "recommend": true,
+   "proceed": false,
+   "role": "influencer",
+   "tier": "Mega",
+   "angle": "이색조합 특별한 맛",
+   "angleGroup": "이색조합 F&B 채널",
+   "price": 7000000,
+   "ig": {
+    "use": true,
+    "followers": 412000,
+    "views": 926000,
+    "er": 0.0506
+   },
+   "yt": {
+    "use": false,
+    "followers": null,
+    "views": null,
+    "er": null
+   },
+   "tt": {
+    "use": false,
+    "followers": null,
+    "views": null,
+    "er": null
+   },
+   "demoAge": "1834 (65.9%)",
+   "demoGender": "여성 66%",
+   "note": "",
+   "order": 13
+  },
+  {
+   "name": "김베리",
+   "url": "https://www.instagram.com/berryveryhungry/",
+   "recommend": false,
+   "proceed": false,
+   "role": "influencer",
+   "tier": "Micro",
+   "angle": "이색조합 특별한 맛",
+   "angleGroup": "이색조합 F&B 채널",
+   "price": null,
+   "ig": {
+    "use": true,
+    "followers": 195000,
+    "views": 445000,
+    "er": 0.0703
+   },
+   "yt": {
+    "use": false,
+    "followers": null,
+    "views": null,
+    "er": null
+   },
+   "tt": {
+    "use": false,
+    "followers": null,
+    "views": null,
+    "er": null
+   },
+   "demoAge": "1834 (74.5%)",
+   "demoGender": "여성 78%",
+   "note": "",
+   "order": 14
+  },
+  {
+   "name": "먹방녜은",
+   "url": "https://www.instagram.com/muk_bangyen08/",
+   "recommend": true,
+   "proceed": false,
+   "role": "influencer",
+   "tier": "Micro",
+   "angle": "이색조합 특별한 맛",
+   "angleGroup": "이색조합 F&B 채널",
+   "price": null,
+   "ig": {
+    "use": true,
+    "followers": 158000,
+    "views": 1790000,
+    "er": 0.3792
+   },
+   "yt": {
+    "use": false,
+    "followers": null,
+    "views": null,
+    "er": null
+   },
+   "tt": {
+    "use": false,
+    "followers": null,
+    "views": null,
+    "er": null
+   },
+   "demoAge": "1834 (56.3%)",
+   "demoGender": "여성 55%",
+   "note": "",
+   "order": 15
+  },
+  {
+   "name": "빵주세요",
+   "url": "https://www.instagram.com/bbangjuseayo/",
+   "recommend": true,
+   "proceed": false,
+   "role": "influencer",
+   "tier": "Micro",
+   "angle": "이색조합 특별한 맛",
+   "angleGroup": "이색조합 F&B 채널",
+   "price": null,
+   "ig": {
+    "use": true,
+    "followers": 11000,
+    "views": 829000,
+    "er": 0.2064
+   },
+   "yt": {
+    "use": false,
+    "followers": null,
+    "views": null,
+    "er": null
+   },
+   "tt": {
+    "use": false,
+    "followers": null,
+    "views": null,
+    "er": null
+   },
+   "demoAge": "1834 (70.5%)",
+   "demoGender": "여성 78%",
+   "note": "",
+   "order": 16
+  },
+  {
+   "name": "윤고미",
+   "url": "https://www.instagram.com/yoongomii/",
+   "recommend": true,
+   "proceed": false,
+   "role": "influencer",
+   "tier": "Micro",
+   "angle": "이색조합 특별한 맛",
+   "angleGroup": "이색조합 F&B 채널",
+   "price": null,
+   "ig": {
+    "use": true,
+    "followers": 6000,
+    "views": 412000,
+    "er": 0.3072
+   },
+   "yt": {
+    "use": false,
+    "followers": null,
+    "views": null,
+    "er": null
+   },
+   "tt": {
+    "use": false,
+    "followers": null,
+    "views": null,
+    "er": null
+   },
+   "demoAge": "2544 (45%)",
+   "demoGender": "여성 51%",
+   "note": "",
+   "order": 17
+  },
+  {
+   "name": "chuu_lime",
+   "url": "https://www.instagram.com/chuu_lime/",
+   "recommend": true,
+   "proceed": false,
+   "role": "influencer",
+   "tier": "Super",
+   "angle": "이색조합 특별한 맛",
+   "angleGroup": "이색조합 일상 브이로그 채널",
+   "price": 12000000,
+   "ig": {
+    "use": true,
+    "followers": 222000,
+    "views": 828000,
+    "er": 0.046
+   },
+   "yt": {
+    "use": true,
+    "followers": 182000,
+    "views": 979000,
+    "er": 0.0436
+   },
+   "tt": {
+    "use": true,
+    "followers": 71000,
+    "views": 124000,
+    "er": 0.0669
+   },
+   "demoAge": "2544 (73.5%)",
+   "demoGender": "여성 88%",
+   "note": "",
+   "order": 18
+  },
+  {
+   "name": "cwood_room",
+   "url": "https://www.instagram.com/cwood_room/reels/",
+   "recommend": true,
+   "proceed": false,
+   "role": "influencer",
+   "tier": "Mega",
+   "angle": "이색조합 특별한 맛",
+   "angleGroup": "이색조합 일상 브이로그 채널",
+   "price": 3500000,
+   "ig": {
+    "use": true,
+    "followers": 288000,
+    "views": 530000,
+    "er": 0.033
+   },
+   "yt": {
+    "use": true,
+    "followers": 57000,
+    "views": 7600,
+    "er": 0.0383
+   },
+   "tt": {
+    "use": true,
+    "followers": 221000,
+    "views": 147000,
+    "er": 0.0777
+   },
+   "demoAge": "1834 (67.9%)",
+   "demoGender": "여성 66%",
+   "note": "",
+   "order": 19
+  },
+  {
+   "name": "h_crystal_",
+   "url": null,
+   "recommend": false,
+   "proceed": false,
+   "role": "influencer",
+   "tier": "Mega",
+   "angle": "이색조합 특별한 맛",
+   "angleGroup": "이색조합 일상 브이로그 채널",
+   "price": null,
+   "ig": {
+    "use": true,
+    "followers": 274000,
+    "views": 260000,
+    "er": 0.0075
+   },
+   "yt": {
+    "use": false,
+    "followers": null,
+    "views": null,
+    "er": null
+   },
+   "tt": {
+    "use": false,
+    "followers": null,
+    "views": null,
+    "er": null
+   },
+   "demoAge": "2544 (69.5%)",
+   "demoGender": "여성 85%",
+   "note": "",
+   "order": 20
+  },
+  {
+   "name": "room_mate_diary_",
+   "url": "https://www.instagram.com/room_mate_diary_/",
+   "recommend": true,
+   "proceed": false,
+   "role": "influencer",
+   "tier": "Mega",
+   "angle": "이색조합 특별한 맛",
+   "angleGroup": "이색조합 일상 브이로그 채널",
+   "price": null,
+   "ig": {
+    "use": true,
+    "followers": 208000,
+    "views": 444000,
+    "er": 0.0706
+   },
+   "yt": {
+    "use": false,
+    "followers": null,
+    "views": null,
+    "er": null
+   },
+   "tt": {
+    "use": false,
+    "followers": null,
+    "views": null,
+    "er": null
+   },
+   "demoAge": "1834 (65.5%)",
+   "demoGender": "여성 87%",
+   "note": "",
+   "order": 21
+  },
+  {
+   "name": "_thisisnini",
+   "url": "https://www.instagram.com/_thisisnini/",
+   "recommend": false,
+   "proceed": false,
+   "role": "influencer",
+   "tier": "Mega",
+   "angle": "이색조합 특별한 맛",
+   "angleGroup": "이색조합 일상 브이로그 채널",
+   "price": null,
+   "ig": {
+    "use": true,
+    "followers": 465000,
+    "views": 266000,
+    "er": 0.0116
+   },
+   "yt": {
+    "use": false,
+    "followers": null,
+    "views": null,
+    "er": null
+   },
+   "tt": {
+    "use": false,
+    "followers": null,
+    "views": null,
+    "er": null
+   },
+   "demoAge": "2544 (61.5%)",
+   "demoGender": "여성 85%",
+   "note": "",
+   "order": 22
+  },
+  {
+   "name": "sul.leep",
+   "url": "https://www.instagram.com/sul.leep/",
+   "recommend": false,
+   "proceed": false,
+   "role": "influencer",
+   "tier": "Micro",
+   "angle": "이색조합 특별한 맛",
+   "angleGroup": "이색조합 일상 브이로그 채널",
+   "price": null,
+   "ig": {
+    "use": true,
+    "followers": 13000,
+    "views": 221000,
+    "er": 0.0736
+   },
+   "yt": {
+    "use": false,
+    "followers": null,
+    "views": null,
+    "er": null
+   },
+   "tt": {
+    "use": false,
+    "followers": null,
+    "views": null,
+    "er": null
+   },
+   "demoAge": "1824 (61.2%)",
+   "demoGender": "여성 71%",
+   "note": "",
+   "order": 23
+  },
+  {
+   "name": "_hwayaa",
+   "url": null,
+   "recommend": false,
+   "proceed": false,
+   "role": "influencer",
+   "tier": "Micro",
+   "angle": "이색조합 특별한 맛",
+   "angleGroup": "이색조합 일상 브이로그 채널",
+   "price": null,
+   "ig": {
+    "use": true,
+    "followers": 57000,
+    "views": 117000,
+    "er": 0.0174
+   },
+   "yt": {
+    "use": false,
+    "followers": null,
+    "views": null,
+    "er": null
+   },
+   "tt": {
+    "use": false,
+    "followers": null,
+    "views": null,
+    "er": null
+   },
+   "demoAge": "1824 (61.2%)",
+   "demoGender": "여성 70%",
+   "note": "",
+   "order": 24
+  },
+  {
+   "name": "HIP",
+   "url": "https://www.instagram.com/hipkr_/",
+   "recommend": true,
+   "proceed": false,
+   "role": "powerpage",
+   "tier": "Micro",
+   "angle": "",
+   "angleGroup": "이슈・트렌드 매거진",
+   "price": 2600000,
+   "ig": {
+    "use": true,
+    "followers": 489000,
+    "views": 30000,
+    "er": 0.0043
+   },
+   "yt": {
+    "use": false,
+    "followers": null,
+    "views": null,
+    "er": null
+   },
+   "tt": {
+    "use": false,
+    "followers": null,
+    "views": null,
+    "er": null
+   },
+   "demoAge": null,
+   "demoGender": null,
+   "note": "",
+   "order": 25
+  },
+  {
+   "name": "ODOC Magazine",
+   "url": "https://www.instagram.com/odoc.mag/",
+   "recommend": true,
+   "proceed": false,
+   "role": "powerpage",
+   "tier": "Micro",
+   "angle": "",
+   "angleGroup": "이슈・트렌드 매거진",
+   "price": 1900000,
+   "ig": {
+    "use": true,
+    "followers": 123000,
+    "views": 16000,
+    "er": 0.0128
+   },
+   "yt": {
+    "use": false,
+    "followers": null,
+    "views": null,
+    "er": null
+   },
+   "tt": {
+    "use": false,
+    "followers": null,
+    "views": null,
+    "er": null
+   },
+   "demoAge": null,
+   "demoGender": null,
+   "note": "",
+   "order": 26
+  },
+  {
+   "name": "trend kr",
+   "url": null,
+   "recommend": true,
+   "proceed": false,
+   "role": "powerpage",
+   "tier": "Micro",
+   "angle": "",
+   "angleGroup": "이슈・트렌드 매거진",
+   "price": 700000,
+   "ig": {
+    "use": true,
+    "followers": 229000,
+    "views": 18000,
+    "er": 0.0013
+   },
+   "yt": {
+    "use": false,
+    "followers": null,
+    "views": null,
+    "er": null
+   },
+   "tt": {
+    "use": false,
+    "followers": null,
+    "views": null,
+    "er": null
+   },
+   "demoAge": null,
+   "demoGender": null,
+   "note": "",
+   "order": 27
+  },
+  {
+   "name": "아트아트",
+   "url": "https://www.instagram.com/artart.today/",
+   "recommend": true,
+   "proceed": false,
+   "role": "powerpage",
+   "tier": "Mega",
+   "angle": "",
+   "angleGroup": "이슈・트렌드 매거진",
+   "price": 3100000,
+   "ig": {
+    "use": true,
+    "followers": 815000,
+    "views": 55000,
+    "er": 0.0046
+   },
+   "yt": {
+    "use": false,
+    "followers": null,
+    "views": null,
+    "er": null
+   },
+   "tt": {
+    "use": false,
+    "followers": null,
+    "views": null,
+    "er": null
+   },
+   "demoAge": null,
+   "demoGender": null,
+   "note": "",
+   "order": 28
+  },
+  {
+   "name": "dailyfood_news",
+   "url": "https://www.instagram.com/dailyfood_news/",
+   "recommend": true,
+   "proceed": false,
+   "role": "powerpage",
+   "tier": "Micro",
+   "angle": "",
+   "angleGroup": "이슈・트렌드 매거진",
+   "price": 1600000,
+   "ig": {
+    "use": true,
+    "followers": 60000,
+    "views": 1400,
+    "er": 0.0138
+   },
+   "yt": {
+    "use": false,
+    "followers": null,
+    "views": null,
+    "er": null
+   },
+   "tt": {
+    "use": false,
+    "followers": null,
+    "views": null,
+    "er": null
+   },
+   "demoAge": null,
+   "demoGender": null,
+   "note": "",
+   "order": 29
+  },
+  {
+   "name": "오늘뭐먹지",
+   "url": "https://www.instagram.com/omuk.official/",
+   "recommend": true,
+   "proceed": false,
+   "role": "powerpage",
+   "tier": "Micro",
+   "angle": "",
+   "angleGroup": "이슈・트렌드 매거진",
+   "price": 1350000,
+   "ig": {
+    "use": true,
+    "followers": 1370000,
+    "views": 59000,
+    "er": 0.0007
+   },
+   "yt": {
+    "use": false,
+    "followers": null,
+    "views": null,
+    "er": null
+   },
+   "tt": {
+    "use": false,
+    "followers": null,
+    "views": null,
+    "er": null
+   },
+   "demoAge": null,
+   "demoGender": null,
+   "note": "",
+   "order": 30
+  },
+  {
+   "name": "thingthing",
+   "url": "https://www.instagram.com/thingthing.kr/",
+   "recommend": true,
+   "proceed": false,
+   "role": "powerpage",
+   "tier": "Micro",
+   "angle": "",
+   "angleGroup": "이슈・트렌드 매거진",
+   "price": 1350000,
+   "ig": {
+    "use": true,
+    "followers": 127000000,
+    "views": 37000,
+    "er": 0.0003
+   },
+   "yt": {
+    "use": false,
+    "followers": null,
+    "views": null,
+    "er": null
+   },
+   "tt": {
+    "use": false,
+    "followers": null,
+    "views": null,
+    "er": null
+   },
+   "demoAge": null,
+   "demoGender": null,
+   "note": "",
+   "order": 31
+  },
+  {
+   "name": "인싸요정",
+   "url": "https://www.instagram.com/inssa_elf/",
+   "recommend": true,
+   "proceed": false,
+   "role": "powerpage",
+   "tier": "Micro",
+   "angle": "",
+   "angleGroup": "이슈 트렌드 라이트 채널",
+   "price": 500000,
+   "ig": {
+    "use": true,
+    "followers": 265000,
+    "views": 9000,
+    "er": 0.0013
+   },
+   "yt": {
+    "use": false,
+    "followers": null,
+    "views": null,
+    "er": null
+   },
+   "tt": {
+    "use": false,
+    "followers": null,
+    "views": null,
+    "er": null
+   },
+   "demoAge": null,
+   "demoGender": null,
+   "note": "",
+   "order": 32
+  },
+  {
+   "name": "20대 뭐하지",
+   "url": null,
+   "recommend": true,
+   "proceed": false,
+   "role": "powerpage",
+   "tier": "Micro",
+   "angle": "",
+   "angleGroup": "이슈 트렌드 라이트 채널",
+   "price": 1400000,
+   "ig": {
+    "use": true,
+    "followers": 659000,
+    "views": 21000,
+    "er": 0.0006
+   },
+   "yt": {
+    "use": false,
+    "followers": null,
+    "views": null,
+    "er": null
+   },
+   "tt": {
+    "use": false,
+    "followers": null,
+    "views": null,
+    "er": null
+   },
+   "demoAge": null,
+   "demoGender": null,
+   "note": "",
+   "order": 33
+  },
+  {
+   "name": "냠냠노트",
+   "url": "https://www.instagram.com/nyamnyam.note/",
+   "recommend": true,
+   "proceed": false,
+   "role": "powerpage",
+   "tier": "Micro",
+   "angle": "",
+   "angleGroup": "이슈 트렌드 라이트 채널",
+   "price": 500000,
+   "ig": {
+    "use": true,
+    "followers": 66000,
+    "views": 12000,
+    "er": 0.0043
+   },
+   "yt": {
+    "use": false,
+    "followers": null,
+    "views": null,
+    "er": null
+   },
+   "tt": {
+    "use": false,
+    "followers": null,
+    "views": null,
+    "er": null
+   },
+   "demoAge": null,
+   "demoGender": null,
+   "note": "",
+   "order": 34
+  },
+  {
+   "name": "맛뿌",
+   "url": "https://www.instagram.com/matppu/",
+   "recommend": true,
+   "proceed": false,
+   "role": "powerpage",
+   "tier": "Micro",
+   "angle": "",
+   "angleGroup": "이슈 트렌드 라이트 채널",
+   "price": 500000,
+   "ig": {
+    "use": true,
+    "followers": 56000,
+    "views": 10000,
+    "er": 0.0031
+   },
+   "yt": {
+    "use": false,
+    "followers": null,
+    "views": null,
+    "er": null
+   },
+   "tt": {
+    "use": false,
+    "followers": null,
+    "views": null,
+    "er": null
+   },
+   "demoAge": null,
+   "demoGender": null,
+   "note": "",
+   "order": 35
+  }
+ ]
+};
+const app=initializeApp(firebaseConfig); const db=getFirestore(app);
+const log=document.getElementById('log'); const btn=document.getElementById('run');
+function p(t,c){const d=document.createElement('div'); if(c)d.className=c; d.textContent=t; log.appendChild(d);}
+window.runSeed=async()=>{
+  btn.disabled=true; btn.textContent='주입 중…'; log.innerHTML='';
+  try{
+    const cid=SEED.campaign.id;
+    await setDoc(doc(db,'campaigns',cid),{...SEED.campaign, createdAt:serverTimestamp()});
+    p('✓ 캠페인 문서 생성');
+    for(const a of SEED.angles){ await setDoc(doc(db,'campaigns',cid,'angles',a.id),a); }
+    p('✓ 앵글 '+SEED.angles.length+'개');
+    let n=0;
+    for(const inf of SEED.influencers){
+      await setDoc(doc(db,'campaigns',cid,'influencers','inf_'+inf.order), inf);
+      n++; if(n%6===0) p('  인플루언서 '+n+'/'+SEED.influencers.length);
+    }
+    p('✓ 인플루언서 '+n+'명');
+    p('🎉 시드 완료! Firestore에서 campaigns 컬렉션 확인하세요.','ok');
+    btn.textContent='완료';
+  }catch(e){ p('❌ 실패: '+e.message,'fail'); btn.disabled=false; btn.textContent='다시 시도'; }
+};
+</script></body></html>
