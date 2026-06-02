@@ -151,6 +151,23 @@ tbody tr:not(.grp){cursor:default}
 .psave{background:var(--accent);color:#fff;border:none;border-radius:9px;padding:11px 24px;font-family:inherit;font-size:14px;font-weight:500;cursor:pointer}
 .placeholder{background:var(--card);border:.5px solid var(--line);border-radius:14px;padding:54px;text-align:center;color:var(--muted);font-size:14px;line-height:1.7}
 .placeholder i{font-size:26px;display:block;margin-bottom:10px;color:var(--hint)}
+.topgrid{display:grid;grid-template-columns:1.5fr 1fr;gap:12px;align-items:stretch;width:100%}
+@media(max-width:760px){.topgrid{grid-template-columns:1fr}}
+.bud-card{background:var(--card);border:.5px solid var(--line);border-radius:14px;padding:14px 16px}
+.bud-card .bl{font-size:12px;color:var(--muted);margin-bottom:10px}
+.bud-tier{font-size:11.5px;font-weight:600;margin:9px 0 3px}
+.bud-tier.t-0{color:#0F6E56}.bud-tier.t-1{color:#185FA5}.bud-tier.t-2{color:#854F0B}
+.bud-item{display:flex;justify-content:space-between;font-size:13px;padding:3px 0 3px 10px;color:var(--muted)}
+.bud-item .num{color:var(--ink)}
+.bud-sum{display:flex;justify-content:space-between;padding:10px 0 0;margin-top:8px;border-top:.5px solid var(--line);font-weight:600}
+.bud-empty{font-size:12.5px;color:var(--hint);padding:8px 0}
+.rcol{display:flex;flex-direction:column;gap:12px}
+.rcard{background:var(--card);border:.5px solid var(--line);border-radius:12px;padding:14px 16px;flex:1;display:flex;flex-direction:column;justify-content:center}
+.rcard .l{font-size:12px;color:var(--muted);margin-bottom:6px;display:flex;align-items:center;gap:5px}
+.rcard .v{font-size:20px;font-weight:600}
+.rcard .v small{font-size:12px;color:var(--hint);font-weight:400}
+.info-i{color:var(--hint);cursor:help;font-size:13px}
+.btier{width:90px;font-family:inherit;font-size:13px;border:.5px solid var(--line);border-radius:8px;padding:7px 8px;color:var(--ink);background:var(--card)}
 .price-tbu{color:var(--hint)}
 </style>
 </head>
@@ -221,9 +238,9 @@ tbody tr:not(.grp){cursor:default}
     <table>
       <thead><tr>
         <th>상태</th><th>인플루언서</th><th>채널</th><th>역할·티어</th><th>앵글</th>
-        <th class="r">팔로워</th><th class="r">ER</th><th class="r">진행단가</th>
+        <th class="r">팔로워</th><th class="r">ER</th><th class="r">섭외비</th><th class="r">섭외 부대비용</th>
       </tr></thead>
-      <tbody id="tbody"><tr><td colspan="8" class="loading">데이터 불러오는 중…</td></tr></tbody>
+      <tbody id="tbody"><tr><td colspan="9" class="loading">데이터 불러오는 중…</td></tr></tbody>
     </table>
   </div>
   </section>
@@ -261,12 +278,10 @@ tbody tr:not(.grp){cursor:default}
       </div>
     </div>
     <div class="plan-card">
-      <h3><i class="ti ti-receipt"></i> 예산 견적</h3>
-      <div class="budget-row"><span>섭외비</span><input id="b-casting"/></div>
-      <div class="budget-row"><span>제작비</span><input id="b-production"/></div>
-      <div class="budget-row"><span>체험단 시딩</span><input id="b-seeding"/></div>
-      <div class="budget-row"><span>대행료</span><input id="b-agencyFee"/></div>
-      <div class="budget-row"><span>총계</span><span class="num" id="b-total">–</span></div>
+      <h3><i class="ti ti-receipt"></i> 제안 견적</h3>
+      <div id="budgetList"></div>
+      <button class="miniadd" id="budgetAdd"><i class="ti ti-plus"></i> 견적 항목 추가</button>
+      <div class="budget-row" style="margin-top:10px"><span>합계</span><span class="num" id="b-total">–</span></div>
     </div>
     <button class="psave" id="planSave">개요·전략 저장</button>
   </section>
@@ -285,7 +300,11 @@ tbody tr:not(.grp){cursor:default}
     </div>
     <div class="frow">
       <div class="fld"><label>앵글</label><select id="d-angle"></select></div>
-      <div class="fld"><label>진행 단가</label><input id="d-price" type="text" placeholder="TBU 또는 숫자"/></div>
+      <div class="fld"><label>섭외비 <span style="color:var(--hint)">콘텐츠 섭외</span></label><input id="d-casting" type="text" placeholder="TBU 또는 숫자"/></div>
+    </div>
+    <div class="frow">
+      <div class="fld"><label>섭외 부대비용 <span style="color:var(--hint)">2차 라이선스 등</span></label><input id="d-extra" type="text" placeholder="숫자"/></div>
+      <div class="fld"><label>부대비용 내역</label><input id="d-extranote" type="text" placeholder="예: 2차 라이선스 6개월"/></div>
     </div>
     <div class="section-l"><i class="ti ti-link"></i> 채널 &amp; 지표 · 보유 URL + 활용 + 피처링 지표</div>
     <div class="plat">
@@ -333,6 +352,10 @@ const S={campaign:null,angles:[],infs:[],axis:"role",sort:"angle",clientMode:new
 
 const fmt=n=>{ if(n==null) return "–"; if(n>=1e6) return (n/1e6).toFixed(n%1e6?1:0)+"M"; if(n>=1e3) return (n/1e3).toFixed(n%1e3?1:0)+"K"; return ""+n; };
 const won=n=>n==null?null:n.toLocaleString("ko-KR");
+function infCasting(i){ return (i&&typeof i.casting==="number")?i.casting:((i&&typeof i.price==="number")?i.price:0); }
+function infExtra(i){ return (i&&typeof i.extra==="number")?i.extra:0; }
+function infSeobi(i){ return infCasting(i)+infExtra(i); }
+function budgetItems(){ const b=S.campaign&&S.campaign.budget; if(b&&Array.isArray(b.items)) return b.items; if(b&&(b.casting!=null||b.production!=null||b.seeding!=null||b.agencyFee!=null)){ const o=[]; if(b.casting)o.push({tier:"섭외비",name:"섭외비",amount:b.casting}); if(b.production)o.push({tier:"진행비",name:"제작비",amount:b.production}); if(b.seeding)o.push({tier:"진행비",name:"체험단 시딩",amount:b.seeding}); if(b.agencyFee)o.push({tier:"대행료",name:"대행료",amount:b.agencyFee}); return o; } return []; }
 const ROLE={influencer:{l:"인플",b:"b-infl"},powerpage:{l:"파워페이지",b:"b-pp"},etc:{l:"기타",b:"b-etc"}};
 
 function primary(inf){
@@ -404,7 +427,7 @@ function render(){
     document.documentElement.style.setProperty("--accent",S.campaign.brandColor||"#E24B4A");
   }
   const b=S.campaign?.budget||{};
-  const confSum=confSet().reduce((s,i)=>s+(typeof i.price==="number"?i.price:0),0);
+  const confSum=confSet().reduce((s,i)=>s+infSeobi(i),0);
   // overview
   const ov=document.getElementById("overview");
   if(S.campaign){
@@ -423,12 +446,23 @@ function render(){
   const vb=document.getElementById("viewBtn");
   vb.style.display=S.clientMode?"none":"flex";
   if(!S.clientMode) vb.innerHTML='<i class="ti ti-link"></i> 광고주 링크 복사';
-  // kpis
+  // top: 제안 견적(좌) + 제안·추천·확정 / 확정 섭외비 합(우)
   const propCnt=S.infs.length;
-  document.getElementById("kpis").innerHTML=`
-    <div class="kpi"><div class="l">총 예산 (견적)</div><div class="v num">${won(b.total)||"–"}</div></div>
-    <div class="kpi"><div class="l">제안 · 추천 · 확정</div><div class="v num">${propCnt} <small>제안</small> · ${recoSet().length} <small>추천</small> · ${confSet().length} <small>확정</small></div></div>
-    <div class="kpi"><div class="l">확정 섭외비 합</div><div class="v num">${won(confSum)} <small>원</small></div></div>`;
+  const items=budgetItems(); const tiers=["섭외비","진행비","대행료"];
+  let budHtml="";
+  tiers.forEach((tier,ti)=>{ const its=items.filter(x=>x.tier===tier); if(!its.length) return;
+    budHtml+=`<div class="bud-tier t-${ti}">${tier}</div>`;
+    its.forEach(it=>budHtml+=`<div class="bud-item"><span>${it.name||tier}</span><span class="num">${won(+it.amount||0)}</span></div>`);
+  });
+  const budTotal=items.reduce((s,x)=>s+(+x.amount||0),0);
+  if(!items.length) budHtml=`<div class="bud-empty">개요·전략 탭에서 견적을 작성하세요.</div>`;
+  document.getElementById("kpis").innerHTML=`<div class="topgrid">
+    <div class="bud-card"><div class="bl">제안 견적</div>${budHtml}${items.length?`<div class="bud-sum"><span>합계</span><span class="num">${won(budTotal)}</span></div>`:""}</div>
+    <div class="rcol">
+      <div class="rcard"><div class="l">제안 · 추천 · 확정</div><div class="v num">${propCnt} <small>제안</small> · ${recoSet().length} <small>추천</small> · ${confSet().length} <small style="color:var(--ok)">확정</small></div></div>
+      <div class="rcard"><div class="l">확정 섭외비 합 <i class="ti ti-info-circle info-i" title="확정 섭외비 합은 '섭외비' 항목(콘텐츠 섭외비 + 섭외 부대비용)의 합계입니다."></i></div><div class="v num">${won(confSum)} <small>원</small></div></div>
+    </div>
+  </div>`;
   // comparison
   document.getElementById("cmp").style.display="block";
   document.getElementById("recoCnt").textContent=recoSet().length+"명";
@@ -440,12 +474,14 @@ function render(){
   const rows=sortInfs(); let html=""; let lastG=null;
   for(const inf of rows){
     const g=groupKey(inf);
-    if(g!==null && g!==lastG){ html+=`<tr class="grp"><td colspan="8">${g}</td></tr>`; lastG=g; }
+    if(g!==null && g!==lastG){ html+=`<tr class="grp"><td colspan="9">${g}</td></tr>`; lastG=g; }
     const p=primary(inf);
     const trcls=inf.proceed?"confirm":(inf.recommend?"reco":"");
     const tier=inf.role==="influencer"&&inf.tier?` · <span class="tier-${inf.tier}">${inf.tier}</span>`:"";
     const er=p.er!=null?`<span class="${p.er>=0.05?"er-hi":""}">${(p.er*100).toFixed(1)}%</span>`:"–";
-    const price=typeof inf.price==="number"?`<span class="num">${won(inf.price)}</span>`:`<span class="price-tbu">TBU</span>`;
+    const cst=infCasting(inf), ext=infExtra(inf);
+    const cstCell=cst?`<span class="num">${won(cst)}</span>`:`<span class="price-tbu">TBU</span>`;
+    const extCell=ext?`<span class="num"${inf.extraNote?` title="${(inf.extraNote||'').replace(/"/g,'&quot;')}" style="border-bottom:1px dotted var(--hint);cursor:help"`:""}>${won(ext)}</span>`:`<span class="price-tbu">–</span>`;
     html+=`<tr class="${trcls}" data-oid="${inf.order}">
       <td><span class="stcell">
         <i class="ti ti-star star ${inf.recommend?"":"off"}"></i>
@@ -457,7 +493,8 @@ function render(){
       <td>${inf.angle?`<span class="achip a-${Math.max(0,S.angles.findIndex(a=>a.name===inf.angle))%3}">${inf.angle}</span>`:`<span class="achip a-x">–</span>`}</td>
       <td class="r num">${fmt(p.followers)}</td>
       <td class="r num">${er}</td>
-      <td class="r">${price}</td>
+      <td class="r">${cstCell}</td>
+      <td class="r">${extCell}</td>
     </tr>`;
   }
   document.getElementById("tbody").innerHTML=html;
@@ -512,7 +549,9 @@ function openDrawer(order){
   $("d-role").value=inf?inf.role:"influencer";
   $("d-tier").value=inf&&inf.tier?inf.tier:"";
   $("d-angle").value=inf?(inf.angle||""):"";
-  $("d-price").value=inf&&typeof inf.price==="number"?inf.price:"";
+  $("d-casting").value=inf&&infCasting(inf)?infCasting(inf):"";
+  $("d-extra").value=inf&&infExtra(inf)?infExtra(inf):"";
+  $("d-extranote").value=inf?(inf.extraNote||""):"";
   fillPlat("ig",inf); fillPlat("yt",inf); fillPlat("tt",inf);
   $("d-age").value=inf?(inf.demoAge||""):"";
   $("d-gender").value=inf?(inf.demoGender||""):"";
@@ -531,7 +570,7 @@ async function saveDrawer(){
   const ig=readPlat("ig"), yt=readPlat("yt"), tt=readPlat("tt");
   const obj={ name, url:ig.url||yt.url||tt.url||prev.url||null, recommend:$("d-reco").checked, proceed:$("d-confirm").checked,
     role, tier:(role==="influencer"?($("d-tier").value||null):null), angle:$("d-angle").value||"", angleGroup:prev.angleGroup||"",
-    price:parsePrice($("d-price").value), ig, yt, tt,
+    casting:parsePrice($("d-casting").value), extra:parsePrice($("d-extra").value), extraNote:$("d-extranote").value.trim()||null, ig, yt, tt,
     demoAge:$("d-age").value.trim()||null, demoGender:$("d-gender").value.trim()||null, note:$("d-note").value.trim()||null, order };
   $("dSave").textContent="저장 중…"; $("dSave").disabled=true;
   try{
@@ -554,7 +593,7 @@ $("d-role").onchange=syncTier;
 $("drawerOv").onclick=e=>{ if(e.target.id==="drawerOv") closeDrawer(); };
 
 // ---------- Tabs + Plan ----------
-let planAngles=[];
+let planAngles=[]; let planBudget=[];
 document.getElementById("tabs").onclick=e=>{
   const bt=e.target.closest("button"); if(!bt) return;
   const t=bt.dataset.tab;
@@ -568,7 +607,17 @@ function recalcSums(){
   setSum("roleSum",["influencer","powerpage","etc"].reduce((s,k)=>s+(+$("pw-role-"+k).value||0),0));
   setSum("tierSum",["Super","Mega","Micro"].reduce((s,k)=>s+(+$("pw-tier-"+k).value||0),0));
 }
-function recalcBudget(){const bn=id=>parseInt(($("b-"+id).value||"").replace(/[^\d]/g,""),10)||0; $("b-total").textContent=(bn("casting")+bn("production")+bn("seeding")+bn("agencyFee")).toLocaleString("ko-KR");}
+function recalcBudget(){ $("b-total").textContent=planBudget.reduce((s,x)=>s+(+x.amount||0),0).toLocaleString("ko-KR"); }
+function renderBudgetEdit(){
+  $("budgetList").innerHTML=planBudget.map((x,i)=>`<div class="angle-edit">
+    <select class="btier" data-i="${i}">${["섭외비","진행비","대행료"].map(t=>`<option ${x.tier===t?"selected":""}>${t}</option>`).join("")}</select>
+    <input class="an" data-i="${i}" data-f="name" value="${(x.name||'').replace(/"/g,'&quot;')}" placeholder="항목명 (예: 채널 발행 콘텐츠 섭외)"/>
+    <input class="aw" data-i="${i}" data-f="amount" type="number" value="${x.amount||0}"/>
+    <button class="rm" data-i="${i}"><i class="ti ti-trash"></i></button></div>`).join("");
+  $("budgetList").querySelectorAll(".btier").forEach(s=>s.onchange=()=>{planBudget[+s.dataset.i].tier=s.value;});
+  $("budgetList").querySelectorAll("input").forEach(inp=>inp.oninput=()=>{const i=+inp.dataset.i,f=inp.dataset.f; planBudget[i][f]=(f==="amount")?(+inp.value||0):inp.value; if(f==="amount")recalcBudget();});
+  $("budgetList").querySelectorAll(".rm").forEach(btn=>btn.onclick=()=>{planBudget.splice(+btn.dataset.i,1); renderBudgetEdit(); recalcBudget();});
+}
 function renderAngleEdit(){
   $("angleList").innerHTML=planAngles.map((a,i)=>`<div class="angle-edit">
     <input class="an" data-i="${i}" data-f="name" value="${(a.name||'').replace(/"/g,'&quot;')}" placeholder="앵글명"/>
@@ -582,7 +631,8 @@ function populatePlan(){
   $("p-main").value=t.main||""; $("p-sub").value=t.sub||""; $("p-traits").value=t.traits||""; $("p-pos").value=t.positioning||"";
   ["influencer","powerpage","etc"].forEach(k=>$("pw-role-"+k).value=(pw.role||{})[k]??0);
   ["Super","Mega","Micro"].forEach(k=>$("pw-tier-"+k).value=(pw.tier||{})[k]??0);
-  ["casting","production","seeding","agencyFee"].forEach(k=>$("b-"+k).value=(b[k]??0));
+  planBudget=budgetItems().map(x=>({tier:x.tier||"섭외비",name:x.name||"",amount:+x.amount||0}));
+  renderBudgetEdit();
   planAngles=S.angles.map(a=>({id:a.id,name:a.name,weight:a.weight}));
   renderAngleEdit(); recalcBudget(); recalcSums();
 }
@@ -591,9 +641,8 @@ async function savePlan(){
   c.target={main:$("p-main").value.trim(),sub:$("p-sub").value.trim(),traits:$("p-traits").value.trim(),positioning:$("p-pos").value.trim()};
   c.planWeights={role:{influencer:+$("pw-role-influencer").value||0,powerpage:+$("pw-role-powerpage").value||0,etc:+$("pw-role-etc").value||0},
     tier:{Super:+$("pw-tier-Super").value||0,Mega:+$("pw-tier-Mega").value||0,Micro:+$("pw-tier-Micro").value||0}};
-  const bn=id=>parseInt(($("b-"+id).value||"").replace(/[^\d]/g,""),10)||0;
-  const ca=bn("casting"),pr=bn("production"),se=bn("seeding"),af=bn("agencyFee");
-  c.budget={casting:ca,production:pr,seeding:se,agencyFee:af,total:ca+pr+se+af};
+  const bitems=planBudget.filter(x=>(x.name||"").trim()||(+x.amount)).map(x=>({tier:x.tier||"섭외비",name:(x.name||"").trim(),amount:+x.amount||0}));
+  c.budget={items:bitems,total:bitems.reduce((s,x)=>s+x.amount,0)};
   $("planSave").textContent="저장 중…"; $("planSave").disabled=true;
   try{
     await setDoc(doc(db,"campaigns",CID),c,{merge:true});
@@ -609,7 +658,7 @@ $("angleAdd").onclick=()=>{planAngles.push({id:null,name:"",weight:0}); renderAn
 $("planSave").onclick=savePlan;
 ["influencer","powerpage","etc"].forEach(k=>$("pw-role-"+k).oninput=recalcSums);
 ["Super","Mega","Micro"].forEach(k=>$("pw-tier-"+k).oninput=recalcSums);
-["casting","production","seeding","agencyFee"].forEach(k=>$("b-"+k).oninput=recalcBudget);
+$("budgetAdd").onclick=()=>{planBudget.push({tier:"섭외비",name:"",amount:0}); renderBudgetEdit(); recalcBudget();};
 
 async function load(){
   const cs=await getDoc(doc(db,"campaigns",CID)); S.campaign=cs.data();
@@ -617,7 +666,7 @@ async function load(){
   const is=await getDocs(collection(db,"campaigns",CID,"influencers")); S.infs=is.docs.map(d=>d.data()).sort((a,b)=>a.order-b.order);
   render();
 }
-load().catch(e=>{document.getElementById("tbody").innerHTML=`<tr><td colspan="8" class="loading">불러오기 실패: ${e.message}</td></tr>`;});
+load().catch(e=>{document.getElementById("tbody").innerHTML=`<tr><td colspan="9" class="loading">불러오기 실패: ${e.message}</td></tr>`;});
 </script>
 </body>
 </html>
