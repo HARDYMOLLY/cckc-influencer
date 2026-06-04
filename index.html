@@ -98,8 +98,9 @@ tr.reco{background:#FBF6EA}
 .clientbar{background:#E6F1FB;color:#0C447C;border-radius:10px;padding:10px 14px;font-size:13px;margin-bottom:14px;display:flex;align-items:center;gap:8px}
 .hbtn.on{background:var(--infl-bg);color:#3C3489;border-color:transparent}
 body.client .agency-only{display:none!important}
-body.client tbody tr:not(.reco):not(.confirm):not(.grp){opacity:.4}
-body.client tbody tr.reco{outline:1.5px solid #FAC775;outline-offset:-1.5px}
+body.client #tbody tr:not(.reco):not(.confirm):not(.grp){opacity:.4}
+body.client #tbody tr.reco{outline:1.5px solid #FAC775;outline-offset:-1.5px}
+body:has(.drawer-ov.open),body:has(.modal-ov.open),body:has(.mini-ov.open),body:has(.lb-ov.open){overflow:hidden}
 .drawer-ov{position:fixed;inset:0;background:rgba(0,0,0,.35);opacity:0;pointer-events:none;transition:opacity .2s;z-index:50}
 .drawer-ov.open{opacity:1;pointer-events:auto}
 .drawer{position:fixed;top:0;right:0;height:100%;width:430px;max-width:92vw;background:var(--card);box-shadow:-8px 0 30px rgba(0,0,0,.12);transform:translateX(100%);transition:transform .25s;z-index:51;overflow-y:auto;overscroll-behavior:contain;padding:20px 22px}
@@ -165,6 +166,18 @@ tbody tr:not(.grp){cursor:default}
 .ch-badge{display:inline-flex;align-items:center;gap:5px;font-size:12px;color:var(--muted)}
 .exec-link{color:#185FA5;text-decoration:none}
 .exec-link:hover{text-decoration:underline}
+.exec-link.prev{cursor:pointer}
+.lb-ov{position:fixed;inset:0;background:rgba(0,0,0,.82);display:none;align-items:center;justify-content:center;z-index:70;padding:34px}
+.lb-ov.open{display:flex}
+.lb-body{max-width:900px;width:100%;max-height:88vh;display:flex;align-items:center;justify-content:center}
+.lb-body img,.lb-body video{max-width:100%;max-height:88vh;border-radius:10px;background:#000}
+.lb-body iframe{width:880px;max-width:100%;height:600px;max-height:88vh;border-radius:10px;background:#000;border:none}
+.lb-x{position:fixed;top:18px;right:22px;background:rgba(255,255,255,.16);border:none;color:#fff;width:40px;height:40px;border-radius:50%;cursor:pointer;font-size:19px;display:flex;align-items:center;justify-content:center}
+.lb-x:hover{background:rgba(255,255,255,.28)}
+.lb-fallback{background:var(--card);border-radius:16px;padding:42px 38px;text-align:center;color:var(--muted);max-width:380px}
+.lb-fallback i{font-size:34px;display:block;margin-bottom:14px;color:var(--hint)}
+.lb-fallback p{margin:0;font-size:13.5px}
+.lb-open{display:inline-block;margin-top:16px;background:var(--accent);color:#fff;text-decoration:none;padding:10px 20px;border-radius:10px;font-size:13px;font-weight:600}
 .r-empty{color:var(--hint)}
 .homebtn{cursor:pointer;color:var(--muted);margin-right:2px;display:inline-flex;align-items:center}
 .homebtn:hover{color:var(--ink)}
@@ -404,7 +417,25 @@ tbody tr:not(.grp){cursor:default}
     </table>
     <div style="font-size:11.5px;color:var(--hint);margin-top:8px">인게이지먼트 = 좋아요 + 댓글 + 공유 · Total ER = 인게이지먼트 ÷ 조회수 · 활용 채널당 1건 · 행 클릭으로 결과 입력</div>
   </section>
-  <section id="tab-settings" style="display:none"><div class="placeholder"><i class="ti ti-settings"></i>설정 — 추후 구현<br><span style="font-size:12px">ER 계산식 설정 등</span></div></section>
+  <section id="tab-settings" style="display:none">
+    <div class="plan-card" style="max-width:560px">
+      <h3 style="margin:0 0 4px">Total ER 계산식</h3>
+      <div style="font-size:12px;color:var(--hint);margin-bottom:16px">결과 리포트의 ER 산출 기준을 설정해요. 변경 시 전체 결과에 즉시 반영됩니다.</div>
+      <div style="font-size:12.5px;font-weight:600;color:var(--muted);margin-bottom:8px">인게이지먼트 항목 <span style="color:var(--hint);font-weight:400">(분자)</span></div>
+      <div style="display:flex;gap:18px;margin-bottom:18px">
+        <label class="chk-line" style="margin:0"><input type="checkbox" id="er-likes"/> <span>좋아요</span></label>
+        <label class="chk-line" style="margin:0"><input type="checkbox" id="er-comments"/> <span>댓글</span></label>
+        <label class="chk-line" style="margin:0"><input type="checkbox" id="er-shares"/> <span>공유</span></label>
+      </div>
+      <div style="font-size:12.5px;font-weight:600;color:var(--muted);margin-bottom:8px">기준 <span style="color:var(--hint);font-weight:400">(분모)</span></div>
+      <div style="display:flex;gap:18px;margin-bottom:18px">
+        <label class="chk-line" style="margin:0"><input type="radio" name="er-denom" value="views"/> <span>조회수</span></label>
+        <label class="chk-line" style="margin:0"><input type="radio" name="er-denom" value="followers"/> <span>팔로워</span></label>
+      </div>
+      <div style="background:var(--bg);border-radius:9px;padding:12px 14px;font-size:13px;color:var(--ink);margin-bottom:18px">현재 공식 · <b id="erPreview">–</b></div>
+      <button class="save" id="erSave" style="padding:9px 20px">저장</button>
+    </div>
+  </section>
 </div>
 
 <div class="drawer-ov" id="drawerOv">
@@ -490,6 +521,11 @@ tbody tr:not(.grp){cursor:default}
       <button class="save" id="dpSave">저장</button>
     </div>
   </div>
+</div>
+
+<div class="lb-ov" id="lightbox">
+  <button class="lb-x" id="lbClose"><i class="ti ti-x"></i></button>
+  <div class="lb-body" id="lbBody"></div>
 </div>
 
 <div class="modal-ov" id="newCampOv">
@@ -716,7 +752,7 @@ function openResComment(o,p){
 }
 function showCommentModal(title,text,at){
   $("miniTitle").textContent=title;
-  $("miniBody").innerHTML=`<textarea id="miniText" placeholder="리스트/기획안 기반 피드백을 입력하세요">${(text||"").replace(/</g,"&lt;")}</textarea><div class="cmt-time" id="miniTime">${at?("코멘트 수정 시간 "+fmtStamp(at)):""}</div>`;
+  $("miniBody").innerHTML=`<textarea id="miniText" placeholder="리스트/기획안 기반 피드백을 입력하세요">${(text||"").replace(/</g,"&lt;")}</textarea><div class="cmt-time" id="miniTime">${at?("코멘트 등록/수정 시간 "+fmtStamp(at)):"저장 시 시간이 기록됩니다"}</div>`;
   $("miniSave").style.display="inline-block"; $("miniOv").classList.add("open");
 }
 async function saveComment(){
@@ -828,7 +864,7 @@ $("drawerOv").onclick=e=>{ if(e.target.id==="drawerOv") closeDrawer(); };
 $("miniCancel").onclick=()=>$("miniOv").classList.remove("open");
 $("miniSave").onclick=saveComment;
 $("miniOv").onclick=e=>{ if(e.target.id==="miniOv") $("miniOv").classList.remove("open"); };
-document.addEventListener("keydown",e=>{ if(e.key==="Escape") document.querySelectorAll(".drawer-ov.open,.modal-ov.open,.mini-ov.open").forEach(o=>o.classList.remove("open")); });
+document.addEventListener("keydown",e=>{ if(e.key==="Escape") document.querySelectorAll(".drawer-ov.open,.modal-ov.open,.mini-ov.open,.lb-ov.open").forEach(o=>o.classList.remove("open")); });
 
 // ---------- Tabs + Plan ----------
 let planAngles=[]; let planBudget=[];
@@ -840,6 +876,7 @@ document.getElementById("tabs").onclick=e=>{
   if(t==="plan") populatePlan();
   if(t==="deploy") renderDeploy();
   if(t==="exec") renderExec();
+  if(t==="settings") populateSettings();
 };
 function setSum(id,v){const el=$(id); if(!el)return; el.textContent="합 "+v+"%"; el.className="wsum "+(v===100?"ok":"bad");}
 function recalcSums(){
@@ -908,31 +945,46 @@ function execRows(){
   confSet().forEach(inf=>["ig","yt","tt"].forEach(pk=>{ if(inf[pk]&&inf[pk].use){ const id="r_"+inf.order+"_"+pk; rows.push({o:inf.order,name:inf.name,p:pk,id,res:S.results.find(r=>r.id===id)||null}); }}));
   return rows;
 }
-function erCalc(r){ const v=+r.views||0; if(!v) return null; return ((+r.likes||0)+(+r.comments||0)+(+r.shares||0))/v; }
+const DEFAULT_ER={num:["likes","comments","shares"],denom:"views"};
+function erFormula(){ const f=(S.campaign&&S.campaign.erFormula)||DEFAULT_ER; return {num:(f.num&&f.num.length)?f.num:DEFAULT_ER.num, denom:f.denom||"views"}; }
+function erCalc(r){
+  const f=erFormula(); const num=f.num.reduce((s,k)=>s+(+r[k]||0),0);
+  let den;
+  if(f.denom==="followers"){ const inf=S.infs.find(i=>i.order===r.infOrder); den=(inf&&inf[r.platform]&&+inf[r.platform].followers)||0; }
+  else den=+r.views||0;
+  if(!den) return null; return num/den;
+}
+const ERLBL={likes:"좋아요",comments:"댓글",shares:"공유",views:"조회수",followers:"팔로워"};
+function erText(){ const f=erFormula(); return "("+f.num.map(k=>ERLBL[k]).join("+")+") ÷ "+ERLBL[f.denom]; }
 function renderExec(){
   const rows=execRows(); const done=rows.filter(x=>x.res).length;
   $("execSub").textContent=`확정 ${confSet().length}명 · 활용 채널 ${rows.length}건 · 결과 입력 ${done}건`;
   const rrs=rows.filter(x=>x.res).map(x=>x.res);
   const tv=rrs.reduce((s,r)=>s+(+r.views||0),0), tl=rrs.reduce((s,r)=>s+(+r.likes||0),0), tc=rrs.reduce((s,r)=>s+(+r.comments||0),0), tsh=rrs.reduce((s,r)=>s+(+r.shares||0),0);
-  const teng=tl+tc+tsh, ter=tv?teng/tv:null;
+  const teng=tl+tc+tsh;
+  const fm=erFormula();
+  const tnum=rrs.reduce((s,r)=>s+fm.num.reduce((a,k)=>a+(+r[k]||0),0),0);
+  let tden; if(fm.denom==="followers") tden=rrs.reduce((s,r)=>{const inf=S.infs.find(i=>i.order===r.infOrder);return s+((inf&&inf[r.platform]&&+inf[r.platform].followers)||0);},0); else tden=tv;
+  const ter=tden?tnum/tden:null;
   $("execSummary").innerHTML=`
     <div class="rs-card"><div class="l">총 조회수</div><div class="v">${tv.toLocaleString("ko-KR")}</div></div>
     <div class="rs-card"><div class="l">총 인게이지먼트</div><div class="v">${teng.toLocaleString("ko-KR")}</div><div class="sub">좋아요 ${tl.toLocaleString("ko-KR")} · 댓글 ${tc.toLocaleString("ko-KR")} · 공유 ${tsh.toLocaleString("ko-KR")}</div></div>
-    <div class="rs-card"><div class="l">Total ER <span style="color:var(--hint)">평균</span></div><div class="v">${ter!=null?(ter*100).toFixed(2)+"%":"–"}</div><div class="sub">총 인게이지먼트 ÷ 총 조회수</div></div>`;
+    <div class="rs-card"><div class="l">Total ER <span style="color:var(--hint)">평균</span></div><div class="v">${ter!=null?(ter*100).toFixed(2)+"%":"–"}</div><div class="sub">${erText()}</div></div>`;
   if(!rows.length){ $("execBody").innerHTML=`<tr><td colspan="8" style="padding:34px;text-align:center;color:var(--hint)">확정된 인플루언서의 활용 채널이 없어요. 보드에서 확정·채널 활용을 먼저 설정하세요.</td></tr>`; return; }
   $("execBody").innerHTML=rows.map(x=>{
     const r=x.res, er=r?erCalc(r):null, eng=r?((+r.likes||0)+(+r.comments||0)+(+r.shares||0)):null;
     return `<tr class="done" data-o="${x.o}" data-p="${x.p}">
       <td>${x.name}</td>
       <td><span class="ch-badge"><i class="ti ti-${PLAT[x.p].icon}"></i> ${PLAT[x.p].l}</span></td>
-      <td>${r&&r.url?`<a class="exec-link" href="${r.url}" target="_blank" rel="noopener" onclick="event.stopPropagation()">원본</a>`:'<span class="r-empty">–</span>'}</td>
-      <td>${r&&r.archive?`<a class="exec-link" href="${r.archive}" target="_blank" rel="noopener" onclick="event.stopPropagation()">아카이브</a>`:'<span class="r-empty">–</span>'}</td>
+      <td>${r&&r.url?`<span class="exec-link prev" data-url="${encodeURI(r.url)}">원본</span>`:'<span class="r-empty">–</span>'}</td>
+      <td>${r&&r.archive?`<span class="exec-link prev" data-url="${encodeURI(r.archive)}">아카이브</span>`:'<span class="r-empty">–</span>'}</td>
       <td class="r">${r&&r.views!=null?(+r.views).toLocaleString("ko-KR"):'<span class="r-empty">–</span>'}</td>
       <td class="r">${eng!=null?eng.toLocaleString("ko-KR"):'<span class="r-empty">–</span>'}</td>
       <td class="r">${er!=null?(er*100).toFixed(1)+"%":'<span class="r-empty">–</span>'}</td>
       <td class="r"><i class="ti ti-${r?"edit":"plus"}" style="color:var(--muted)"></i></td></tr>`;
   }).join("");
-  $("execBody").querySelectorAll("tr.done").forEach(tr=>tr.onclick=e=>{ if(e.target.closest("a"))return; openResult(+tr.dataset.o,tr.dataset.p); });
+  $("execBody").querySelectorAll(".prev").forEach(s=>s.onclick=e=>{ e.stopPropagation(); openLightbox(s.dataset.url); });
+  $("execBody").querySelectorAll("tr.done").forEach(tr=>tr.onclick=e=>{ if(e.target.closest("a")||e.target.closest(".prev"))return; openResult(+tr.dataset.o,tr.dataset.p); });
 }
 function renderDeploy(){
   const cf=confSet(); const rows=[];
@@ -993,7 +1045,46 @@ async function setConfirm(o,p,v){
   renderDeploy();
   try{ await setDoc(doc(db,"campaigns",CID,"results",id),merged); }catch(e){ alert("저장 실패: "+e.message); }
 }
-function recalcER(){ const dg=id=>parseInt(($("r-"+id).value||"").replace(/[^\d]/g,""),10)||0; const v=dg("views"); const e=dg("likes")+dg("comments")+dg("shares"); $("r-er").value=v?((e/v*100).toFixed(2)+"%"):"–"; }
+function recalcER(){
+  const dg=id=>parseInt(($("r-"+id).value||"").replace(/[^\d]/g,""),10)||0;
+  const tmp={views:dg("views"),likes:dg("likes"),comments:dg("comments"),shares:dg("shares"),infOrder:editingResult&&editingResult.o,platform:editingResult&&editingResult.p};
+  const er=erCalc(tmp); $("r-er").value=er!=null?(er*100).toFixed(2)+"%":"–";
+}
+function openLightbox(url){
+  if(!url) return; let inner;
+  const yt=url.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|shorts\/|embed\/|live\/))([\w-]{6,})/);
+  const dr=url.match(/drive\.google\.com\/file\/d\/([\w-]+)/);
+  const u=url.toLowerCase().split("?")[0];
+  if(yt){ inner=`<iframe src="https://www.youtube.com/embed/${yt[1]}" allow="autoplay; fullscreen" allowfullscreen></iframe>`; }
+  else if(dr){ inner=`<iframe src="https://drive.google.com/file/d/${dr[1]}/preview" allow="autoplay" allowfullscreen></iframe>`; }
+  else if(/\.(jpe?g|png|gif|webp|avif)$/.test(u)){ inner=`<img src="${url}" alt="미리보기"/>`; }
+  else if(/\.(mp4|webm|mov|m4v)$/.test(u)){ inner=`<video src="${url}" controls autoplay></video>`; }
+  else { inner=`<div class="lb-fallback"><i class="ti ti-external-link"></i><p>이 링크는 페이지 내 미리보기를 지원하지 않아요.<br>(인스타그램·틱톡 등은 새 탭에서 열려요)</p><a class="lb-open" href="${url}" target="_blank" rel="noopener">새 탭에서 열기</a></div>`; }
+  $("lbBody").innerHTML=inner; $("lightbox").classList.add("open");
+}
+function closeLightbox(){ $("lightbox").classList.remove("open"); $("lbBody").innerHTML=""; }
+function settingsPreview(){
+  const num=["likes","comments","shares"].filter(k=>$("er-"+k).checked);
+  const dn=(document.querySelector('input[name="er-denom"]:checked')||{}).value||"views";
+  $("erPreview").textContent=num.length?("("+num.map(k=>ERLBL[k]).join("+")+") ÷ "+ERLBL[dn]):"항목을 1개 이상 선택하세요";
+}
+function populateSettings(){
+  const f=erFormula();
+  ["likes","comments","shares"].forEach(k=>$("er-"+k).checked=f.num.includes(k));
+  const dr=document.querySelector(`input[name="er-denom"][value="${f.denom}"]`); if(dr)dr.checked=true;
+  document.querySelectorAll('#tab-settings input').forEach(el=>el.onchange=settingsPreview);
+  settingsPreview();
+}
+async function saveSettings(){
+  const num=["likes","comments","shares"].filter(k=>$("er-"+k).checked);
+  if(!num.length){ alert("인게이지먼트 항목을 1개 이상 선택해줘."); return; }
+  const denom=(document.querySelector('input[name="er-denom"]:checked')||{}).value||"views";
+  const ef={num,denom};
+  $("erSave").textContent="저장 중…"; $("erSave").disabled=true;
+  try{ await setDoc(doc(db,"campaigns",CID),{erFormula:ef},{merge:true}); S.campaign.erFormula=ef; renderExec(); alert("ER 계산식이 저장됐어."); }
+  catch(e){ alert("저장 실패: "+e.message); }
+  $("erSave").textContent="저장"; $("erSave").disabled=false;
+}
 function openResult(o,p){
   editingResult={o,p}; const inf=S.infs.find(i=>i.order===o); const id="r_"+o+"_"+p; const r=S.results.find(x=>x.id===id)||null;
   $("rTitle").textContent=`${inf?inf.name:""} · ${PLAT[p].l}`;
@@ -1052,6 +1143,9 @@ $("dpClose").onclick=()=>$("deployOv").classList.remove("open");
 $("dpCancel").onclick=()=>$("deployOv").classList.remove("open");
 $("dpSave").onclick=saveDeploy;
 $("deployOv").onclick=e=>{ if(e.target.id==="deployOv") $("deployOv").classList.remove("open"); };
+$("lbClose").onclick=closeLightbox;
+$("lightbox").onclick=e=>{ if(e.target.id==="lightbox") closeLightbox(); };
+$("erSave").onclick=saveSettings;
 $("exportBtn").onclick=exportXlsx;
 
 // ---------- 홈 · 캠페인 관리 ----------
