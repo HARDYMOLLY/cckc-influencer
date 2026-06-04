@@ -102,7 +102,7 @@ body.client tbody tr:not(.reco):not(.confirm):not(.grp){opacity:.4}
 body.client tbody tr.reco{outline:1.5px solid #FAC775;outline-offset:-1.5px}
 .drawer-ov{position:fixed;inset:0;background:rgba(0,0,0,.35);opacity:0;pointer-events:none;transition:opacity .2s;z-index:50}
 .drawer-ov.open{opacity:1;pointer-events:auto}
-.drawer{position:fixed;top:0;right:0;height:100%;width:430px;max-width:92vw;background:var(--card);box-shadow:-8px 0 30px rgba(0,0,0,.12);transform:translateX(100%);transition:transform .25s;z-index:51;overflow-y:auto;padding:20px 22px}
+.drawer{position:fixed;top:0;right:0;height:100%;width:430px;max-width:92vw;background:var(--card);box-shadow:-8px 0 30px rgba(0,0,0,.12);transform:translateX(100%);transition:transform .25s;z-index:51;overflow-y:auto;overscroll-behavior:contain;padding:20px 22px}
 .drawer-ov.open .drawer{transform:translateX(0)}
 .dh{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
 .dh .t{font-size:17px;font-weight:600}
@@ -230,6 +230,12 @@ tbody tr:not(.grp){cursor:default}
 .metric-lab{font-size:10px;color:var(--hint);margin-bottom:3px;text-align:center}
 .stamp{font-size:11px;color:var(--hint);margin:8px 0 12px;display:flex;justify-content:space-between}
 .reco-desc{font-size:11.5px;color:var(--muted);margin-top:6px}
+.appr button i{font-size:13px}
+.rcard-sub{font-size:11px;color:var(--hint);margin-top:5px;line-height:1.4}
+.chk-line{display:inline-flex;align-items:center;gap:6px;font-size:13px;color:var(--ink);cursor:pointer;white-space:nowrap;margin-top:8px}
+.cmt-time{font-size:11px;color:var(--hint);margin:10px 0 0}
+.plan-ic{cursor:pointer;color:#1E9E62;font-size:16px}
+.plan-none{color:var(--hint)}
 .topgrid{display:grid;grid-template-columns:1.5fr 1fr;gap:12px;align-items:stretch;width:100%}
 @media(max-width:760px){.topgrid{grid-template-columns:1fr}}
 .bud-card{background:var(--card);border:.5px solid var(--line);border-radius:14px;padding:14px 16px}
@@ -377,10 +383,10 @@ tbody tr:not(.grp){cursor:default}
   <section id="tab-deploy" style="display:none">
     <div class="exec-head"><div><div class="h">집행</div><div class="sub" id="deploySub"></div></div></div>
     <table class="exec-table">
-      <thead><tr><th>인플루언서</th><th>채널</th><th>역할·티어</th><th>집행 일정</th><th class="r"></th></tr></thead>
+      <thead><tr><th>인플루언서</th><th>채널</th><th>역할·티어</th><th>집행 일정</th><th>기획안</th><th>컨펌</th><th>코멘트</th></tr></thead>
       <tbody id="deployBody"></tbody>
     </table>
-    <div style="font-size:11.5px;color:var(--hint);margin-top:8px">최종 확정된 인플루언서의 활용 채널별 집행 현황 · 채널별 분리 · 행 클릭으로 집행 일정 입력</div>
+    <div style="font-size:11.5px;color:var(--hint);margin-top:8px">최종 승인된 인플루언서의 활용 채널별 집행 현황 · 채널별 분리 · 행 클릭 → 일정·기획안 입력 / 컨펌·코멘트는 행에서</div>
   </section>
 
   <section id="tab-exec" style="display:none">
@@ -411,7 +417,7 @@ tbody tr:not(.grp){cursor:default}
     </div>
     <div class="frow">
       <div class="fld"><label>앵글</label><select id="d-angle"></select></div>
-      <div class="fld"><label>추가 제안</label><label class="use" style="margin-top:7px;white-space:nowrap"><input type="checkbox" id="d-addprop"/> 활성화</label></div>
+      <div class="fld"><label>추가 제안</label><label class="chk-line"><input type="checkbox" id="d-addprop"/> <span>활성화</span></label></div>
     </div>
     <div class="frow">
       <div class="fld"><label>섭외비</label><input id="d-casting" type="text" placeholder="TBU 또는 금액"/></div>
@@ -454,8 +460,7 @@ tbody tr:not(.grp){cursor:default}
 
 <div class="drawer-ov" id="resultOv">
   <div class="drawer">
-    <div class="dh"><span class="t" id="rTitle">집행 결과</span><span class="x" id="rClose"><i class="ti ti-x"></i></span></div>
-    <div class="fld"><label>집행 일정</label><input id="r-schedule" type="text" placeholder="예: 26.06.01 ~ 06.15"/></div>
+    <div class="dh"><span class="t" id="rTitle">결과 입력</span><span class="x" id="rClose"><i class="ti ti-x"></i></span></div>
     <div class="fld"><label>원본 콘텐츠 URL</label><input id="r-url" type="text" placeholder="게시물 링크"/></div>
     <div class="fld"><label>아카이브 URL <span style="color:var(--hint)">드라이브 등</span></label><input id="r-archive" type="text"/></div>
     <div class="fld"><label>게시일</label><input id="r-date" type="text" placeholder="2026-06-01"/></div>
@@ -466,11 +471,23 @@ tbody tr:not(.grp){cursor:default}
       <div class="fld"><label>공유</label><input id="r-shares"/></div>
     </div>
     <div class="fld"><label>Total ER <span style="color:var(--hint)">자동</span></label><input id="r-er" readonly style="background:var(--bg)"/></div>
-    <div class="fld"><label>비고</label><textarea id="r-note"></textarea></div>
     <div class="dbtns">
       <button class="del" id="rDelete" title="결과 삭제" style="display:none"><i class="ti ti-trash"></i></button>
       <button id="rCancel">취소</button>
       <button class="save" id="rSave">저장</button>
+    </div>
+  </div>
+</div>
+
+<div class="drawer-ov" id="deployOv">
+  <div class="drawer">
+    <div class="dh"><span class="t" id="dpTitle">집행</span><span class="x" id="dpClose"><i class="ti ti-x"></i></span></div>
+    <div class="fld"><label>집행 일정</label><input id="dp-schedule" type="text" placeholder="예: 26.06.01 ~ 06.15"/></div>
+    <div class="fld"><label>기획안 등록</label><input id="dp-plan" type="text" placeholder="구글 드라이브 링크"/></div>
+    <div class="fld"><label>참고 사항</label><textarea id="dp-note"></textarea></div>
+    <div class="dbtns">
+      <button id="dpCancel">취소</button>
+      <button class="save" id="dpSave">저장</button>
     </div>
   </div>
 </div>
@@ -626,7 +643,7 @@ function render(){
     <div class="bud-card"><div class="bl">제안 견적</div>${budHtml}${items.length?`<div class="bud-sum"><span>합계</span><span class="num">${won(budTotal)}</span></div>`:""}</div>
     <div class="rcol">
       <div class="rcard"><div class="l">제안 · 추천 · 승인</div><div class="v num">${propCnt} <small>제안</small> · ${recoSet().length} <small>추천</small> · ${confSet().length} <small style="color:var(--ok)">승인</small></div></div>
-      <div class="rcard"><div class="l">승인 섭외비 합 <i class="ti ti-info-circle info-i" title="승인 섭외비 합은 '섭외비' 항목(콘텐츠 섭외비 + 섭외 부대비용)의 합계입니다."></i></div><div class="v num">${won(confSum)} <small>원</small></div></div>
+      <div class="rcard"><div class="l">승인 섭외비 합</div><div class="v num">${won(confSum)} <small>원</small></div><div class="rcard-sub">'섭외비' 항목(콘텐츠 섭외비 + 섭외 부대비용)의 합계</div></div>
     </div>
   </div>`;
   // comparison
@@ -652,9 +669,9 @@ function render(){
     const hasC=!!(inf.clientComment&&(""+inf.clientComment).trim());
     const cmtCell=hasC?`<i class="ti ti-message-2 cmt-btn has" data-oid="${inf.order}" title="코멘트 보기"></i>`:(S.clientMode?`<i class="ti ti-plus cmt-btn add" data-oid="${inf.order}" title="코멘트 추가"></i>`:`<span class="cmt-none">–</span>`);
     const apprCell=`<span class="appr">
-      <button data-oid="${inf.order}" data-v="approved" class="${a==="approved"?"on-ok":""}" title="승인">○</button>
-      <button data-oid="${inf.order}" data-v="hold" class="${a==="hold"?"on-hold":""}" title="보류">△</button>
-      <button data-oid="${inf.order}" data-v="rejected" class="${a==="rejected"?"on-rej":""}" title="반려">✕</button></span>`;
+      <button data-oid="${inf.order}" data-v="approved" class="${a==="approved"?"on-ok":""}" title="승인"><i class="ti ti-circle"></i></button>
+      <button data-oid="${inf.order}" data-v="hold" class="${a==="hold"?"on-hold":""}" title="보류"><i class="ti ti-triangle"></i></button>
+      <button data-oid="${inf.order}" data-v="rejected" class="${a==="rejected"?"on-rej":""}" title="반려"><i class="ti ti-x"></i></button></span>`;
     html+=`<tr class="${trcls}" data-oid="${inf.order}">
       <td><span class="stcell"><i class="ti ti-star star ${inf.recommend?"":"off"}"></i>${inf.additionalProposal?`<span class="add-badge">추가</span>`:`<span class="cmt-none" style="margin-left:5px">–</span>`}</span></td>
       <td><span class="nm-main">${inf.name}</span></td>
@@ -687,19 +704,37 @@ async function setApproval(order,v){
   try{ await updateDoc(doc(db,"campaigns",CID,"influencers","inf_"+order),{approval:nv,proceed:nv==="approved"}); }
   catch(e){ inf.approval=prev; render(); alert("저장 실패: "+e.message); }
 }
-let commentTarget=null;
+let commentCtx=null;
 function openComment(order){
-  commentTarget=order; const inf=S.infs.find(i=>i.order===order);
-  $("miniTitle").textContent="광고주 코멘트 · "+(inf?inf.name:"");
-  $("miniBody").innerHTML=`<textarea id="miniText" placeholder="리스트 기반 피드백을 입력하세요">${((inf&&inf.clientComment)||"").replace(/</g,"&lt;")}</textarea>`;
+  const inf=S.infs.find(i=>i.order===order); commentCtx={kind:"inf",order};
+  showCommentModal("광고주 코멘트 · "+(inf?inf.name:""), (inf&&inf.clientComment)||"", inf&&inf.clientCommentAt);
+}
+function openResComment(o,p){
+  const id="r_"+o+"_"+p; const r=S.results.find(x=>x.id===id)||{}; const inf=S.infs.find(i=>i.order===o);
+  commentCtx={kind:"res",o,p,id};
+  showCommentModal("광고주 코멘트 · "+(inf?inf.name:"")+" · "+(PLAT[p]?PLAT[p].l:p), r.comment||"", r.commentAt);
+}
+function showCommentModal(title,text,at){
+  $("miniTitle").textContent=title;
+  $("miniBody").innerHTML=`<textarea id="miniText" placeholder="리스트/기획안 기반 피드백을 입력하세요">${(text||"").replace(/</g,"&lt;")}</textarea><div class="cmt-time" id="miniTime">${at?("코멘트 수정 시간 "+fmtStamp(at)):""}</div>`;
   $("miniSave").style.display="inline-block"; $("miniOv").classList.add("open");
 }
 async function saveComment(){
-  const inf=S.infs.find(i=>i.order===commentTarget); if(!inf){ $("miniOv").classList.remove("open"); return; }
-  const v=$("miniText").value.trim()||null; const prev=inf.clientComment; inf.clientComment=v;
-  $("miniOv").classList.remove("open"); render();
-  try{ await updateDoc(doc(db,"campaigns",CID,"influencers","inf_"+commentTarget),{clientComment:v}); }
-  catch(e){ inf.clientComment=prev; render(); alert("저장 실패: "+e.message); }
+  if(!commentCtx) return; const v=$("miniText").value.trim()||null; const now=Date.now();
+  if(commentCtx.kind==="inf"){
+    const inf=S.infs.find(i=>i.order===commentCtx.order); if(!inf){ $("miniOv").classList.remove("open"); return; }
+    const pc=inf.clientComment, pa=inf.clientCommentAt; inf.clientComment=v; inf.clientCommentAt=v?now:null;
+    $("miniOv").classList.remove("open"); render();
+    try{ await updateDoc(doc(db,"campaigns",CID,"influencers","inf_"+commentCtx.order),{clientComment:v,clientCommentAt:v?now:null}); }
+    catch(e){ inf.clientComment=pc; inf.clientCommentAt=pa; render(); alert("저장 실패: "+e.message); }
+  }else{
+    const id=commentCtx.id; let r=S.results.find(x=>x.id===id);
+    const merged=Object.assign({id,infOrder:commentCtx.o,platform:commentCtx.p}, r||{}, {comment:v,commentAt:v?now:null});
+    const i=S.results.findIndex(x=>x.id===id); if(i>=0)S.results[i]=merged; else S.results.push(merged);
+    $("miniOv").classList.remove("open"); renderDeploy();
+    try{ await setDoc(doc(db,"campaigns",CID,"results",id),merged); }
+    catch(e){ alert("저장 실패: "+e.message); }
+  }
 }
 function showInfoModal(title,text){ $("miniTitle").textContent=title; $("miniBody").innerHTML=`<div class="txt">${(text||"").replace(/</g,"&lt;")}</div>`; $("miniSave").style.display="none"; $("miniOv").classList.add("open"); }
 
@@ -793,6 +828,7 @@ $("drawerOv").onclick=e=>{ if(e.target.id==="drawerOv") closeDrawer(); };
 $("miniCancel").onclick=()=>$("miniOv").classList.remove("open");
 $("miniSave").onclick=saveComment;
 $("miniOv").onclick=e=>{ if(e.target.id==="miniOv") $("miniOv").classList.remove("open"); };
+document.addEventListener("keydown",e=>{ if(e.key==="Escape") document.querySelectorAll(".drawer-ov.open,.modal-ov.open,.mini-ov.open").forEach(o=>o.classList.remove("open")); });
 
 // ---------- Tabs + Plan ----------
 let planAngles=[]; let planBudget=[];
@@ -902,48 +938,83 @@ function renderDeploy(){
   const cf=confSet(); const rows=[];
   cf.forEach(inf=>["ig","yt","tt"].forEach(pk=>{ if(inf[pk]&&inf[pk].use) rows.push({inf,pk}); }));
   rows.sort((a,b)=>{ const ai=S.angles.findIndex(x=>x.name===a.inf.angle), bi=S.angles.findIndex(x=>x.name===b.inf.angle); return (ai<0?99:ai)-(bi<0?99:bi); });
-  $("deploySub").textContent=`확정 ${cf.length}명 · 활용 채널 ${rows.length}건`;
-  if(!rows.length){ $("deployBody").innerHTML=`<tr><td colspan="5" style="padding:30px;text-align:center;color:var(--hint)">확정된 인플루언서의 활용 채널이 없어요.</td></tr>`; return; }
+  $("deploySub").textContent=`승인 ${cf.length}명 · 활용 채널 ${rows.length}건`;
+  if(!rows.length){ $("deployBody").innerHTML=`<tr><td colspan="7" style="padding:30px;text-align:center;color:var(--hint)">승인된 인플루언서의 활용 채널이 없어요. 제안 탭에서 승인(○)하면 여기로 넘어와요.</td></tr>`; return; }
   let html="", lastA=null;
   rows.forEach(({inf,pk})=>{
     const ang=inf.angle||"미지정";
-    if(ang!==lastA){ html+=`<tr class="grp"><td colspan="5">${ang}</td></tr>`; lastA=ang; }
+    if(ang!==lastA){ html+=`<tr class="grp"><td colspan="7">${ang}</td></tr>`; lastA=ang; }
     const id="r_"+inf.order+"_"+pk; const res=S.results.find(r=>r.id===id)||{};
     const tier=inf.role==="influencer"&&inf.tier?` · <span class="tier-${inf.tier}">${inf.tier}</span>`:"";
     const url=inf[pk]&&inf[pk].url;
     const ch=url?`<a class="exec-link" href="${url}" target="_blank" rel="noopener" onclick="event.stopPropagation()">${PLAT[pk].l}</a>`:PLAT[pk].l;
+    const plan=res.planLink?`<a class="plan-ic" href="${res.planLink}" target="_blank" rel="noopener" onclick="event.stopPropagation()" title="기획안 열기"><i class="ti ti-paperclip"></i></a>`:`<span class="plan-none">–</span>`;
+    const cs=res.confirmStatus||null;
+    const conf=`<span class="appr">
+      <button data-o="${inf.order}" data-p="${pk}" data-v="approved" class="${cs==="approved"?"on-ok":""}" title="승인"><i class="ti ti-circle"></i></button>
+      <button data-o="${inf.order}" data-p="${pk}" data-v="hold" class="${cs==="hold"?"on-hold":""}" title="보류"><i class="ti ti-triangle"></i></button>
+      <button data-o="${inf.order}" data-p="${pk}" data-v="rejected" class="${cs==="rejected"?"on-rej":""}" title="반려"><i class="ti ti-x"></i></button></span>`;
+    const hasC=!!(res.comment&&(""+res.comment).trim());
+    const cmt=hasC?`<i class="ti ti-message-2 cmt-btn has dpcmt" data-o="${inf.order}" data-p="${pk}" title="코멘트"></i>`:(S.clientMode?`<i class="ti ti-plus cmt-btn add dpcmt" data-o="${inf.order}" data-p="${pk}" title="코멘트 추가"></i>`:`<span class="cmt-none">–</span>`);
     html+=`<tr class="done" data-o="${inf.order}" data-p="${pk}">
       <td><span class="nm-main">${inf.name}</span></td>
       <td><span class="ch-badge"><i class="ti ti-${PLAT[pk].icon}"></i> ${ch}</span></td>
       <td><span class="badge ${ROLE[inf.role].b}">${ROLE[inf.role].l}${tier}</span></td>
       <td>${res.schedule?res.schedule:'<span class="r-empty">일정 미정</span>'}</td>
-      <td class="r"><i class="ti ti-${res.schedule?"edit":"plus"}" style="color:var(--muted)"></i></td></tr>`;
+      <td>${plan}</td><td>${conf}</td><td>${cmt}</td></tr>`;
   });
   $("deployBody").innerHTML=html;
-  $("deployBody").querySelectorAll("tr.done").forEach(tr=>tr.onclick=e=>{ if(e.target.closest("a"))return; openResult(+tr.dataset.o,tr.dataset.p); });
+  $("deployBody").querySelectorAll(".appr button").forEach(b=>b.onclick=e=>{e.stopPropagation(); setConfirm(+b.dataset.o,b.dataset.p,b.dataset.v);});
+  $("deployBody").querySelectorAll(".dpcmt").forEach(b=>b.onclick=e=>{e.stopPropagation(); openResComment(+b.dataset.o,b.dataset.p);});
+  $("deployBody").querySelectorAll("tr.done").forEach(tr=>tr.onclick=e=>{ if(e.target.closest("a")||e.target.closest(".appr")||e.target.closest(".cmt-btn"))return; openDeploy(+tr.dataset.o,tr.dataset.p); });
+}
+let editingDeploy=null;
+function openDeploy(o,p){
+  editingDeploy={o,p}; const inf=S.infs.find(i=>i.order===o); const id="r_"+o+"_"+p; const r=S.results.find(x=>x.id===id)||{};
+  $("dpTitle").textContent=`${inf?inf.name:""} · ${PLAT[p].l}`;
+  $("dp-schedule").value=r.schedule||""; $("dp-plan").value=r.planLink||""; $("dp-note").value=r.note||"";
+  const ro=S.clientMode;
+  $("deployOv").querySelectorAll("input,textarea").forEach(el=>el.disabled=ro);
+  $("dpSave").style.display=ro?"none":""; $("dpCancel").textContent=ro?"닫기":"취소";
+  $("deployOv").classList.add("open");
+}
+function resMerge(o,p,patch){ const id="r_"+o+"_"+p; const inf=S.infs.find(i=>i.order===o); const r=S.results.find(x=>x.id===id); return Object.assign({id,infOrder:o,infName:inf?inf.name:"",platform:p}, r||{}, patch); }
+async function saveDeploy(){
+  const {o,p}=editingDeploy; const id="r_"+o+"_"+p;
+  const merged=resMerge(o,p,{schedule:$("dp-schedule").value.trim()||null, planLink:$("dp-plan").value.trim()||null, note:$("dp-note").value.trim()||null});
+  $("dpSave").textContent="저장 중…"; $("dpSave").disabled=true;
+  try{ await setDoc(doc(db,"campaigns",CID,"results",id),merged); const i=S.results.findIndex(x=>x.id===id); if(i>=0)S.results[i]=merged; else S.results.push(merged); $("deployOv").classList.remove("open"); renderDeploy(); }
+  catch(e){ alert("저장 실패: "+e.message); }
+  $("dpSave").textContent="저장"; $("dpSave").disabled=false;
+}
+async function setConfirm(o,p,v){
+  const id="r_"+o+"_"+p; const cur=(S.results.find(x=>x.id===id)||{}).confirmStatus||null; const nv=(cur===v)?null:v;
+  const merged=resMerge(o,p,{confirmStatus:nv}); const i=S.results.findIndex(x=>x.id===id); if(i>=0)S.results[i]=merged; else S.results.push(merged);
+  renderDeploy();
+  try{ await setDoc(doc(db,"campaigns",CID,"results",id),merged); }catch(e){ alert("저장 실패: "+e.message); }
 }
 function recalcER(){ const dg=id=>parseInt(($("r-"+id).value||"").replace(/[^\d]/g,""),10)||0; const v=dg("views"); const e=dg("likes")+dg("comments")+dg("shares"); $("r-er").value=v?((e/v*100).toFixed(2)+"%"):"–"; }
 function openResult(o,p){
   editingResult={o,p}; const inf=S.infs.find(i=>i.order===o); const id="r_"+o+"_"+p; const r=S.results.find(x=>x.id===id)||null;
   $("rTitle").textContent=`${inf?inf.name:""} · ${PLAT[p].l}`;
-  $("r-schedule").value=r?(r.schedule||""):"";
   $("r-url").value=r?(r.url||""):((inf&&inf[p]&&inf[p].url)||"");
   $("r-archive").value=r?(r.archive||""):""; $("r-date").value=r?(r.date||""):"";
   ["views","likes","comments","shares"].forEach(k=>$("r-"+k).value=(r&&r[k]!=null)?r[k]:"");
-  $("r-note").value=r?(r.note||""):""; $("rDelete").style.display=r?"flex":"none";
+  $("rDelete").style.display=(r&&r.views!=null)?"flex":"none";
   recalcER(); $("resultOv").classList.add("open");
 }
 async function saveResult(){
-  const {o,p}=editingResult; const id="r_"+o+"_"+p; const inf=S.infs.find(i=>i.order===o);
+  const {o,p}=editingResult; const id="r_"+o+"_"+p;
   const nn=k=>{ const s=($("r-"+k).value||"").replace(/[^\d]/g,""); return s?parseInt(s,10):null; };
-  const obj={ id, infOrder:o, infName:inf?inf.name:"", platform:p, schedule:$("r-schedule").value.trim()||null, url:$("r-url").value.trim()||null, archive:$("r-archive").value.trim()||null, date:$("r-date").value.trim()||null, views:nn("views"), likes:nn("likes"), comments:nn("comments"), shares:nn("shares"), note:$("r-note").value.trim()||null };
+  const merged=resMerge(o,p,{url:$("r-url").value.trim()||null, archive:$("r-archive").value.trim()||null, date:$("r-date").value.trim()||null, views:nn("views"), likes:nn("likes"), comments:nn("comments"), shares:nn("shares")});
   $("rSave").textContent="저장 중…"; $("rSave").disabled=true;
-  try{ await setDoc(doc(db,"campaigns",CID,"results",id),obj); const i=S.results.findIndex(x=>x.id===id); if(i>=0)S.results[i]=obj; else S.results.push(obj); $("resultOv").classList.remove("open"); renderExec(); renderDeploy(); }
+  try{ await setDoc(doc(db,"campaigns",CID,"results",id),merged); const i=S.results.findIndex(x=>x.id===id); if(i>=0)S.results[i]=merged; else S.results.push(merged); $("resultOv").classList.remove("open"); renderExec(); }
   catch(e){ alert("저장 실패: "+e.message); }
   $("rSave").textContent="저장"; $("rSave").disabled=false;
 }
-async function deleteResult(){ const {o,p}=editingResult; const id="r_"+o+"_"+p; if(!confirm("이 집행 결과를 삭제할까요?"))return;
-  try{ await deleteDoc(doc(db,"campaigns",CID,"results",id)); S.results=S.results.filter(x=>x.id!==id); $("resultOv").classList.remove("open"); renderExec(); renderDeploy(); }catch(e){ alert("삭제 실패: "+e.message); } }
+async function deleteResult(){ const {o,p}=editingResult; const id="r_"+o+"_"+p; if(!confirm("이 결과(지표)를 삭제할까요? 집행 일정·기획안은 유지됩니다."))return;
+  const merged=resMerge(o,p,{url:null,archive:null,date:null,views:null,likes:null,comments:null,shares:null}); const i=S.results.findIndex(x=>x.id===id); if(i>=0)S.results[i]=merged;
+  try{ await setDoc(doc(db,"campaigns",CID,"results",id),merged); $("resultOv").classList.remove("open"); renderExec(); }catch(e){ alert("삭제 실패: "+e.message); } }
 async function exportXlsx(){
   if(typeof ExcelJS==="undefined"){ alert("엑셀 모듈 로딩 실패 — 새로고침 후 다시 시도."); return; }
   const rows=execRows();
@@ -977,6 +1048,10 @@ $("rCancel").onclick=()=>$("resultOv").classList.remove("open");
 $("rSave").onclick=saveResult; $("rDelete").onclick=deleteResult;
 $("resultOv").onclick=e=>{ if(e.target.id==="resultOv") $("resultOv").classList.remove("open"); };
 ["views","likes","comments","shares"].forEach(k=>$("r-"+k).oninput=recalcER);
+$("dpClose").onclick=()=>$("deployOv").classList.remove("open");
+$("dpCancel").onclick=()=>$("deployOv").classList.remove("open");
+$("dpSave").onclick=saveDeploy;
+$("deployOv").onclick=e=>{ if(e.target.id==="deployOv") $("deployOv").classList.remove("open"); };
 $("exportBtn").onclick=exportXlsx;
 
 // ---------- 홈 · 캠페인 관리 ----------
