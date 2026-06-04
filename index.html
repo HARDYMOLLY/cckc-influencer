@@ -18,7 +18,7 @@
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:"Pretendard",sans-serif;background:var(--bg);color:var(--ink);font-size:14px;line-height:1.5}
 .num{font-family:"JetBrains Mono",monospace;font-variant-numeric:tabular-nums}
-.wrap{max-width:1080px;margin:0 auto;padding:28px 24px 80px}
+.wrap{max-width:1340px;margin:0 auto;padding:28px 24px 80px}
 header{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:22px}
 .title{display:flex;align-items:center;gap:10px}
 .dot{width:11px;height:11px;border-radius:50%;background:var(--accent)}
@@ -207,6 +207,29 @@ tbody tr:not(.grp){cursor:default}
 .rs-card .l{font-size:12px;color:var(--muted);margin-bottom:6px}
 .rs-card .v{font-size:20px;font-weight:600;font-family:"JetBrains Mono",monospace}
 .rs-card .sub{font-size:11.5px;color:var(--hint);margin-top:6px;line-height:1.5}
+.appr{display:inline-flex;gap:5px}
+.appr button{width:26px;height:26px;border-radius:50%;border:.5px solid var(--line);background:var(--card);cursor:pointer;display:inline-flex;align-items:center;justify-content:center;font-size:13px;color:var(--hint);padding:0}
+.appr button:hover{border-color:var(--muted)}
+.appr button.on-ok{background:var(--ok);border-color:transparent;color:#fff}
+.appr button.on-hold{background:#E0A82E;border-color:transparent;color:#fff}
+.appr button.on-rej{background:#C0392B;border-color:transparent;color:#fff}
+.add-badge{display:inline-block;font-size:10.5px;background:var(--accent);color:#fff;border-radius:20px;padding:1px 7px;margin-left:5px;vertical-align:middle}
+.cmt-btn{cursor:pointer;color:var(--muted);font-size:16px}
+.cmt-btn.has{color:#2D7FF9}
+.cmt-btn.add{color:var(--ok)}
+.cmt-none{color:var(--hint)}
+.cost-link{cursor:pointer;border-bottom:1px dotted var(--hint)}
+.mini-ov{position:fixed;inset:0;background:rgba(0,0,0,.35);display:none;align-items:center;justify-content:center;z-index:62;padding:20px}
+.mini-ov.open{display:flex}
+.mini{background:var(--card);border-radius:14px;padding:20px;width:360px;max-width:100%}
+.mini h3{font-size:15px;font-weight:600;margin-bottom:12px}
+.mini textarea{width:100%;min-height:90px;font-family:inherit;font-size:13px;border:.5px solid var(--line);border-radius:8px;padding:9px;resize:vertical;color:var(--ink);background:var(--card)}
+.mini .txt{font-size:13.5px;line-height:1.6;color:var(--ink);white-space:pre-wrap}
+.mini .dbtns{margin-top:14px}
+.drawer input:disabled,.drawer select:disabled,.drawer textarea:disabled{background:var(--bg);opacity:1;cursor:default}
+.metric-lab{font-size:10px;color:var(--hint);margin-bottom:3px;text-align:center}
+.stamp{font-size:11px;color:var(--hint);margin:8px 0 12px;display:flex;justify-content:space-between}
+.reco-desc{font-size:11.5px;color:var(--muted);margin-top:6px}
 .topgrid{display:grid;grid-template-columns:1.5fr 1fr;gap:12px;align-items:stretch;width:100%}
 @media(max-width:760px){.topgrid{grid-template-columns:1fr}}
 .bud-card{background:var(--card);border:.5px solid var(--line);border-radius:14px;padding:14px 16px}
@@ -231,7 +254,7 @@ tbody tr:not(.grp){cursor:default}
 <div class="home" id="home" style="display:none">
   <div class="home-head">
     <div><h1>캠페인</h1><div class="sub">코카-콜라 인플루언서 캠페인 관리</div></div>
-    <button class="newbtn" id="newCampBtn"><i class="ti ti-plus"></i> 새 캠페인</button>
+    <button class="newbtn agency-only" id="newCampBtn"><i class="ti ti-plus"></i> 새 캠페인</button>
   </div>
   <div class="camp-grid" id="campGrid"></div>
   <div id="archWrap"></div>
@@ -279,7 +302,7 @@ tbody tr:not(.grp){cursor:default}
         <div id="recoBars"></div>
       </div>
       <div class="cmp-col">
-        <div class="ch"><span class="t"><i class="ti ti-circle-check" style="color:var(--ok)"></i> 광고주 확정</span><span class="c" id="confCnt"></span></div>
+        <div class="ch"><span class="t"><i class="ti ti-circle-check" style="color:var(--ok)"></i> 광고주 승인</span><span class="c" id="confCnt"></span></div>
         <div id="confBars"></div>
       </div>
     </div>
@@ -302,10 +325,10 @@ tbody tr:not(.grp){cursor:default}
   <div class="tablewrap">
     <table>
       <thead><tr>
-        <th>상태</th><th>인플루언서</th><th>채널</th><th>역할·티어</th><th>제안 현황</th>
-        <th class="r">팔로워</th><th class="r">ER</th><th class="r">섭외비</th><th class="r">섭외 부대비용</th>
+        <th>상태</th><th>인플루언서</th><th>채널</th><th>역할·티어</th><th>연령</th><th>성별</th>
+        <th class="r">팔로워</th><th class="r">ER</th><th class="r">섭외비</th><th class="r">섭외 부대비용</th><th>코멘트</th><th>승인</th>
       </tr></thead>
-      <tbody id="tbody"><tr><td colspan="9" class="loading">데이터 불러오는 중…</td></tr></tbody>
+      <tbody id="tbody"><tr><td colspan="12" class="loading">데이터 불러오는 중…</td></tr></tbody>
     </table>
   </div>
   </section>
@@ -388,41 +411,39 @@ tbody tr:not(.grp){cursor:default}
     </div>
     <div class="frow">
       <div class="fld"><label>앵글</label><select id="d-angle"></select></div>
-      <div class="fld"><label>섭외비 <span style="color:var(--hint)">콘텐츠 섭외</span></label><input id="d-casting" type="text" placeholder="TBU 또는 숫자"/></div>
+      <div class="fld"><label>추가 제안</label><label class="use" style="margin-top:7px;white-space:nowrap"><input type="checkbox" id="d-addprop"/> 활성화</label></div>
     </div>
     <div class="frow">
-      <div class="fld"><label>제안 회차</label><select id="d-round"><option value="">–</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option><option>6</option><option>7</option><option>8</option><option>9</option><option>10</option></select></div>
-      <div class="fld"><label>제안 일자</label><input id="d-pdate" type="date"/></div>
+      <div class="fld"><label>섭외비</label><input id="d-casting" type="text" placeholder="TBU 또는 금액"/></div>
+      <div class="fld"><label>섭외 부대비용</label><input id="d-extra" type="text" placeholder="금액"/></div>
     </div>
-    <div class="frow">
-      <div class="fld"><label>섭외 부대비용 <span style="color:var(--hint)">2차 라이선스 등</span></label><input id="d-extra" type="text" placeholder="숫자"/></div>
-      <div class="fld"><label>부대비용 내역</label><input id="d-extranote" type="text" placeholder="예: 2차 라이선스 6개월"/></div>
-    </div>
-    <div class="section-l"><i class="ti ti-link"></i> 채널 &amp; 지표 · 보유 URL + 활용 + 피처링 지표</div>
+    <div class="fld"><label>부대비용 내역</label><input id="d-extranote" type="text" placeholder="예: 2차 라이선스 6개월"/></div>
+    <div class="section-l"><i class="ti ti-link"></i> 채널 정보</div>
     <div class="plat">
-      <div class="plat-h"><span style="color:#C13584"><i class="ti ti-brand-instagram"></i> 인스타그램</span><label class="use"><input type="checkbox" id="d-ig-use"/> 활용</label></div>
+      <div class="plat-h"><span style="color:#C13584"><i class="ti ti-brand-instagram"></i> 인스타그램</span><label class="use" style="white-space:nowrap;flex-shrink:0"><input type="checkbox" id="d-ig-use"/> 활용</label></div>
       <input id="d-ig-url" type="text" placeholder="채널 URL"/>
-      <div class="metrics"><input id="d-ig-fol" placeholder="팔로워"/><input id="d-ig-view" placeholder="조회수"/><input id="d-ig-er" placeholder="ER %"/></div>
+      <div class="metrics"><div><div class="metric-lab">팔로워</div><input id="d-ig-fol"/></div><div><div class="metric-lab">조회수</div><input id="d-ig-view"/></div><div><div class="metric-lab">ER %</div><input id="d-ig-er"/></div></div>
     </div>
     <div class="plat">
-      <div class="plat-h"><span style="color:#E0322B"><i class="ti ti-brand-youtube"></i> 유튜브</span><label class="use"><input type="checkbox" id="d-yt-use"/> 활용</label></div>
+      <div class="plat-h"><span style="color:#E0322B"><i class="ti ti-brand-youtube"></i> 유튜브</span><label class="use" style="white-space:nowrap;flex-shrink:0"><input type="checkbox" id="d-yt-use"/> 활용</label></div>
       <input id="d-yt-url" type="text" placeholder="채널 URL"/>
-      <div class="metrics"><input id="d-yt-fol" placeholder="팔로워"/><input id="d-yt-view" placeholder="조회수"/><input id="d-yt-er" placeholder="ER %"/></div>
+      <div class="metrics"><div><div class="metric-lab">팔로워</div><input id="d-yt-fol"/></div><div><div class="metric-lab">조회수</div><input id="d-yt-view"/></div><div><div class="metric-lab">ER %</div><input id="d-yt-er"/></div></div>
     </div>
     <div class="plat">
-      <div class="plat-h"><span><i class="ti ti-brand-tiktok"></i> 틱톡</span><label class="use"><input type="checkbox" id="d-tt-use"/> 활용</label></div>
+      <div class="plat-h"><span><i class="ti ti-brand-tiktok"></i> 틱톡</span><label class="use" style="white-space:nowrap;flex-shrink:0"><input type="checkbox" id="d-tt-use"/> 활용</label></div>
       <input id="d-tt-url" type="text" placeholder="채널 URL"/>
-      <div class="metrics"><input id="d-tt-fol" placeholder="팔로워"/><input id="d-tt-view" placeholder="조회수"/><input id="d-tt-er" placeholder="ER %"/></div>
+      <div class="metrics"><div><div class="metric-lab">팔로워</div><input id="d-tt-fol"/></div><div><div class="metric-lab">조회수</div><input id="d-tt-view"/></div><div><div class="metric-lab">ER %</div><input id="d-tt-er"/></div></div>
     </div>
     <div class="frow">
-      <div class="fld"><label>팔로워 Age</label><input id="d-age" type="text" placeholder="예: 1834 (57%)"/></div>
-      <div class="fld"><label>Gender</label><input id="d-gender" type="text" placeholder="예: 여성 58%"/></div>
+      <div class="fld"><label>팔로워 연령</label><input id="d-age" type="text" placeholder="예: 18-34 (57%)"/></div>
+      <div class="fld"><label>팔로워 성별</label><input id="d-gender" type="text" placeholder="예: 여성 58%"/></div>
     </div>
-    <div class="fld"><label>비고</label><textarea id="d-note"></textarea></div>
-    <div class="flags">
+    <div class="fld"><label>참고 사항</label><textarea id="d-note"></textarea></div>
+    <div class="flags" style="flex-direction:column;align-items:flex-start;gap:4px">
       <label><input type="checkbox" id="d-reco"/> <i class="ti ti-star" style="color:var(--amber)"></i> 추천</label>
-      <label><input type="checkbox" id="d-confirm"/> <i class="ti ti-circle-check" style="color:var(--ok)"></i> 확정</label>
+      <div class="reco-desc">추천 활성화 시 에이전시 추천 대시보드에 반영됩니다.</div>
     </div>
+    <div class="stamp" id="dStamp" style="display:none"><span id="dCreated"></span><span id="dUpdated"></span></div>
     <div class="dbtns">
       <button class="del" id="dDelete" title="삭제" style="display:none"><i class="ti ti-trash"></i></button>
       <button id="dCancel">취소</button>
@@ -464,9 +485,21 @@ tbody tr:not(.grp){cursor:default}
       <div class="fld"><label>시작일</label><input id="nc-start" type="date"/></div>
       <div class="fld"><label>종료일</label><input id="nc-end" type="date"/></div>
     </div>
+    <div class="fld"><label>상태</label><select id="nc-status"><option>진행중</option><option>집행 완료</option><option>집행 취소</option></select></div>
     <div class="dbtns" style="margin-top:6px">
       <button id="ncCancel">취소</button>
       <button class="save" id="ncCreate">생성</button>
+    </div>
+  </div>
+</div>
+
+<div class="mini-ov" id="miniOv">
+  <div class="mini">
+    <h3 id="miniTitle"></h3>
+    <div id="miniBody"></div>
+    <div class="dbtns">
+      <button id="miniCancel">닫기</button>
+      <button class="save" id="miniSave">저장</button>
     </div>
   </div>
 </div>
@@ -538,7 +571,8 @@ function barsHtml(set){
   }).join("");
 }
 const recoSet=()=>S.infs.filter(i=>i.recommend);
-const confSet=()=>S.infs.filter(i=>i.proceed);
+function apprOf(i){ return i.approval || (i.proceed?"approved":null); }
+const confSet=()=>S.infs.filter(i=>apprOf(i)==="approved");
 
 function sortInfs(){
   const a=[...S.infs];
@@ -591,8 +625,8 @@ function render(){
   document.getElementById("kpis").innerHTML=`<div class="topgrid">
     <div class="bud-card"><div class="bl">제안 견적</div>${budHtml}${items.length?`<div class="bud-sum"><span>합계</span><span class="num">${won(budTotal)}</span></div>`:""}</div>
     <div class="rcol">
-      <div class="rcard"><div class="l">제안 · 추천 · 확정</div><div class="v num">${propCnt} <small>제안</small> · ${recoSet().length} <small>추천</small> · ${confSet().length} <small style="color:var(--ok)">확정</small></div></div>
-      <div class="rcard"><div class="l">확정 섭외비 합 <i class="ti ti-info-circle info-i" title="확정 섭외비 합은 '섭외비' 항목(콘텐츠 섭외비 + 섭외 부대비용)의 합계입니다."></i></div><div class="v num">${won(confSum)} <small>원</small></div></div>
+      <div class="rcard"><div class="l">제안 · 추천 · 승인</div><div class="v num">${propCnt} <small>제안</small> · ${recoSet().length} <small>추천</small> · ${confSet().length} <small style="color:var(--ok)">승인</small></div></div>
+      <div class="rcard"><div class="l">승인 섭외비 합 <i class="ti ti-info-circle info-i" title="승인 섭외비 합은 '섭외비' 항목(콘텐츠 섭외비 + 섭외 부대비용)의 합계입니다."></i></div><div class="v num">${won(confSum)} <small>원</small></div></div>
     </div>
   </div>`;
   // comparison
@@ -604,48 +638,70 @@ function render(){
   [...document.querySelectorAll("#axis button")].forEach(btn=>btn.classList.toggle("on",btn.dataset.axis===S.axis));
   // table
   const rows=sortInfs(); let html=""; let lastG=null;
-  const maxRound=Math.max(0,...S.infs.map(i=>+i.proposalRound||0));
   for(const inf of rows){
     const g=groupKey(inf);
-    if(g!==null && g!==lastG){ html+=`<tr class="grp"><td colspan="9">${g}</td></tr>`; lastG=g; }
+    if(g!==null && g!==lastG){ html+=`<tr class="grp"><td colspan="12">${g}</td></tr>`; lastG=g; }
     const p=primary(inf);
-    const trcls=inf.proceed?"confirm":(inf.recommend?"reco":"");
+    const a=apprOf(inf);
+    const trcls=a==="approved"?"confirm":(inf.recommend?"reco":"");
     const tier=inf.role==="influencer"&&inf.tier?` · <span class="tier-${inf.tier}">${inf.tier}</span>`:"";
     const er=p.er!=null?`<span class="${p.er>=0.05?"er-hi":""}">${(p.er*100).toFixed(1)}%</span>`:"–";
     const cst=infCasting(inf), ext=infExtra(inf);
     const cstCell=cst?`<span class="num">${won(cst)}</span>`:`<span class="price-tbu">TBU</span>`;
-    const extCell=ext?`<span class="num"${inf.extraNote?` title="${(inf.extraNote||'').replace(/"/g,'&quot;')}" style="border-bottom:1px dotted var(--hint);cursor:help"`:""}>${won(ext)}</span>`:`<span class="price-tbu">–</span>`;
+    const extCell=ext?(inf.extraNote?`<span class="num cost-link" data-oid="${inf.order}">${won(ext)}</span>`:`<span class="num">${won(ext)}</span>`):`<span class="price-tbu">–</span>`;
+    const hasC=!!(inf.clientComment&&(""+inf.clientComment).trim());
+    const cmtCell=hasC?`<i class="ti ti-message-2 cmt-btn has" data-oid="${inf.order}" title="코멘트 보기"></i>`:(S.clientMode?`<i class="ti ti-plus cmt-btn add" data-oid="${inf.order}" title="코멘트 추가"></i>`:`<span class="cmt-none">–</span>`);
+    const apprCell=`<span class="appr">
+      <button data-oid="${inf.order}" data-v="approved" class="${a==="approved"?"on-ok":""}" title="승인">○</button>
+      <button data-oid="${inf.order}" data-v="hold" class="${a==="hold"?"on-hold":""}" title="보류">△</button>
+      <button data-oid="${inf.order}" data-v="rejected" class="${a==="rejected"?"on-rej":""}" title="반려">✕</button></span>`;
     html+=`<tr class="${trcls}" data-oid="${inf.order}">
-      <td><span class="stcell">
-        <i class="ti ti-star star ${inf.recommend?"":"off"}"></i>
-        <i class="ti ti-circle-check toggle ${inf.proceed?"on":""}" data-id="${inf.order}" title="진행 확정 토글"></i>
-      </span></td>
+      <td><span class="stcell"><i class="ti ti-star star ${inf.recommend?"":"off"}"></i>${inf.additionalProposal?`<span class="add-badge">추가</span>`:`<span class="cmt-none" style="margin-left:5px">–</span>`}</span></td>
       <td><span class="nm-main">${inf.name}</span></td>
       <td>${channels(inf)}</td>
       <td><span class="badge ${ROLE[inf.role].b}">${ROLE[inf.role].l}${tier}</span></td>
-      <td>${(+inf.proposalRound)?`<span class="round-badge${(+inf.proposalRound===maxRound)?" latest":""}">${+inf.proposalRound}</span>`:""}${inf.proposalDate?`<span class="round-date">${fmtD(inf.proposalDate)}</span>`:((+inf.proposalRound)?"":`<span class="r-empty">–</span>`)}</td>
+      <td>${inf.demoAge||'<span class="cmt-none">–</span>'}</td>
+      <td>${inf.demoGender||'<span class="cmt-none">–</span>'}</td>
       <td class="r num">${fmt(p.followers)}</td>
       <td class="r num">${er}</td>
       <td class="r">${cstCell}</td>
       <td class="r">${extCell}</td>
+      <td>${cmtCell}</td>
+      <td>${apprCell}</td>
     </tr>`;
   }
   document.getElementById("tbody").innerHTML=html;
-  document.querySelectorAll(".toggle").forEach(t=>t.onclick=e=>{e.stopPropagation();toggleConfirm(+t.dataset.id);});
-  if(!S.clientMode){
-    document.querySelectorAll("#tbody tr:not(.grp)").forEach(tr=>{
-      tr.style.cursor="pointer";
-      tr.onclick=e=>{ if(e.target.closest(".toggle")||e.target.closest("a")) return; openDrawer(+tr.dataset.oid); };
-    });
-  }
+  document.querySelectorAll("#tbody .appr button").forEach(b=>b.onclick=e=>{e.stopPropagation(); setApproval(+b.dataset.oid,b.dataset.v);});
+  document.querySelectorAll("#tbody .cmt-btn").forEach(b=>b.onclick=e=>{e.stopPropagation(); openComment(+b.dataset.oid);});
+  document.querySelectorAll("#tbody .cost-link").forEach(b=>b.onclick=e=>{e.stopPropagation(); const inf=S.infs.find(i=>i.order===+b.dataset.oid); showInfoModal("섭외 부대비용 내역",(inf&&inf.extraNote)||"내역 없음");});
+  document.querySelectorAll("#tbody tr:not(.grp)").forEach(tr=>{
+    tr.style.cursor="pointer";
+    tr.onclick=e=>{ if(e.target.closest(".appr")||e.target.closest(".cmt-btn")||e.target.closest(".cost-link")||e.target.closest("a")) return; openDrawer(+tr.dataset.oid); };
+  });
 }
 
-async function toggleConfirm(order){
+async function setApproval(order,v){
   const inf=S.infs.find(i=>i.order===order); if(!inf) return;
-  const nv=!inf.proceed; inf.proceed=nv; render();
-  try{ await updateDoc(doc(db,"campaigns",CID,"influencers","inf_"+order),{proceed:nv}); }
-  catch(e){ inf.proceed=!nv; render(); alert("저장 실패: "+e.message); }
+  const prev=inf.approval, nv=(apprOf(inf)===v)?null:v;
+  inf.approval=nv; inf.proceed=(nv==="approved"); render();
+  try{ await updateDoc(doc(db,"campaigns",CID,"influencers","inf_"+order),{approval:nv,proceed:nv==="approved"}); }
+  catch(e){ inf.approval=prev; render(); alert("저장 실패: "+e.message); }
 }
+let commentTarget=null;
+function openComment(order){
+  commentTarget=order; const inf=S.infs.find(i=>i.order===order);
+  $("miniTitle").textContent="광고주 코멘트 · "+(inf?inf.name:"");
+  $("miniBody").innerHTML=`<textarea id="miniText" placeholder="리스트 기반 피드백을 입력하세요">${((inf&&inf.clientComment)||"").replace(/</g,"&lt;")}</textarea>`;
+  $("miniSave").style.display="inline-block"; $("miniOv").classList.add("open");
+}
+async function saveComment(){
+  const inf=S.infs.find(i=>i.order===commentTarget); if(!inf){ $("miniOv").classList.remove("open"); return; }
+  const v=$("miniText").value.trim()||null; const prev=inf.clientComment; inf.clientComment=v;
+  $("miniOv").classList.remove("open"); render();
+  try{ await updateDoc(doc(db,"campaigns",CID,"influencers","inf_"+commentTarget),{clientComment:v}); }
+  catch(e){ inf.clientComment=prev; render(); alert("저장 실패: "+e.message); }
+}
+function showInfoModal(title,text){ $("miniTitle").textContent=title; $("miniBody").innerHTML=`<div class="txt">${(text||"").replace(/</g,"&lt;")}</div>`; $("miniSave").style.display="none"; $("miniOv").classList.add("open"); }
 
 document.getElementById("axis").onclick=e=>{const b=e.target.closest("button"); if(b){S.axis=b.dataset.axis; render();}};
 document.getElementById("sort").onchange=e=>{S.sort=e.target.value; render();};
@@ -667,23 +723,24 @@ function fillPlat(k,inf){
   const p=(inf&&inf[k])||{};
   $("d-"+k+"-use").checked=!!p.use;
   $("d-"+k+"-url").value=p.url||(inf&&domGuess(inf.url,k)?inf.url:"");
-  $("d-"+k+"-fol").value=p.followers!=null?p.followers:"";
-  $("d-"+k+"-view").value=p.views!=null?p.views:"";
+  $("d-"+k+"-fol").value=p.followers!=null?(+p.followers).toLocaleString("ko-KR"):"";
+  $("d-"+k+"-view").value=p.views!=null?(+p.views).toLocaleString("ko-KR"):"";
   $("d-"+k+"-er").value=p.er!=null?(p.er*100).toFixed(2).replace(/\.?0+$/,""):"";
 }
 function readPlat(k){ return {use:$("d-"+k+"-use").checked, url:$("d-"+k+"-url").value.trim()||null, followers:parseNum($("d-"+k+"-fol").value), views:parseNum($("d-"+k+"-view").value), er:parseER($("d-"+k+"-er").value)}; }
 function syncTier(){ $("d-tier-wrap").style.display=$("d-role").value==="influencer"?"flex":"none"; }
+function fmtStamp(ms){ if(!ms) return "–"; const d=new Date(ms); const z=n=>(""+n).padStart(2,"0"); return `${(""+d.getFullYear()).slice(2)}.${z(d.getMonth()+1)}.${z(d.getDate())} ${z(d.getHours())}:${z(d.getMinutes())}`; }
 function openDrawer(order){
   editing=(order==null?null:order);
   const inf=editing!=null?S.infs.find(i=>i.order===editing):null;
-  $("dTitle").textContent=inf?"인플루언서 수정":"인플루언서 등록";
+  const ro=S.clientMode;
+  $("dTitle").textContent=ro?"인플루언서 조회":(inf?"인플루언서 수정":"인플루언서 등록");
   $("d-angle").innerHTML='<option value="">미지정</option>'+S.angles.map(a=>`<option value="${a.name}">${a.name}</option>`).join("");
   $("d-name").value=inf?inf.name:"";
   $("d-role").value=inf?inf.role:"influencer";
   $("d-tier").value=inf&&inf.tier?inf.tier:"";
   $("d-angle").value=inf?(inf.angle||""):"";
-  $("d-round").value=inf&&inf.proposalRound?inf.proposalRound:"";
-  $("d-pdate").value=inf?(inf.proposalDate||""):"";
+  $("d-addprop").checked=inf?!!inf.additionalProposal:false;
   $("d-casting").value=inf&&infCasting(inf)?infCasting(inf):"";
   $("d-extra").value=inf&&infExtra(inf)?infExtra(inf):"";
   $("d-extranote").value=inf?(inf.extraNote||""):"";
@@ -692,8 +749,10 @@ function openDrawer(order){
   $("d-gender").value=inf?(inf.demoGender||""):"";
   $("d-note").value=inf?(inf.note||""):"";
   $("d-reco").checked=inf?!!inf.recommend:false;
-  $("d-confirm").checked=inf?!!inf.proceed:false;
-  $("dDelete").style.display=inf?"flex":"none";
+  if(inf&&inf.createdAt){ $("dStamp").style.display="flex"; $("dCreated").textContent="최초 등록 "+fmtStamp(inf.createdAt); $("dUpdated").textContent="최종 수정 "+fmtStamp(inf.updatedAt||inf.createdAt); }
+  else $("dStamp").style.display="none";
+  document.getElementById("drawer").querySelectorAll("input,select,textarea").forEach(el=>el.disabled=ro);
+  $("dSave").style.display=ro?"none":""; $("dDelete").style.display=(ro||!inf)?"none":"flex"; $("dCancel").textContent=ro?"닫기":"취소";
   syncTier(); $("drawerOv").classList.add("open");
 }
 function closeDrawer(){ $("drawerOv").classList.remove("open"); }
@@ -703,11 +762,14 @@ async function saveDrawer(){
   const order=editing!=null?editing:(Math.max(-1,...S.infs.map(i=>i.order))+1);
   const role=$("d-role").value;
   const ig=readPlat("ig"), yt=readPlat("yt"), tt=readPlat("tt");
-  const obj={ name, url:ig.url||yt.url||tt.url||prev.url||null, recommend:$("d-reco").checked, proceed:$("d-confirm").checked,
+  const obj={ name, url:ig.url||yt.url||tt.url||prev.url||null, recommend:$("d-reco").checked,
+    approval:prev.approval||null, proceed:apprOf(prev)==="approved",
     role, tier:(role==="influencer"?($("d-tier").value||null):null), angle:$("d-angle").value||"", angleGroup:prev.angleGroup||"",
-    proposalRound:$("d-round").value?+$("d-round").value:null, proposalDate:$("d-pdate").value||null,
+    additionalProposal:$("d-addprop").checked,
     casting:parsePrice($("d-casting").value), extra:parsePrice($("d-extra").value), extraNote:$("d-extranote").value.trim()||null, ig, yt, tt,
-    demoAge:$("d-age").value.trim()||null, demoGender:$("d-gender").value.trim()||null, note:$("d-note").value.trim()||null, order };
+    demoAge:$("d-age").value.trim()||null, demoGender:$("d-gender").value.trim()||null, note:$("d-note").value.trim()||null,
+    clientComment:prev.clientComment||null, order,
+    createdAt:prev.createdAt||Date.now(), updatedAt:Date.now() };
   $("dSave").textContent="저장 중…"; $("dSave").disabled=true;
   try{
     await setDoc(doc(db,"campaigns",CID,"influencers","inf_"+order),obj);
@@ -727,6 +789,10 @@ $("addBtn").onclick=()=>openDrawer(null);
 $("dClose").onclick=closeDrawer; $("dCancel").onclick=closeDrawer; $("dSave").onclick=saveDrawer; $("dDelete").onclick=deleteDrawer;
 $("d-role").onchange=syncTier;
 $("drawerOv").onclick=e=>{ if(e.target.id==="drawerOv") closeDrawer(); };
+["ig","yt","tt"].forEach(k=>["fol","view"].forEach(m=>{ const el=$("d-"+k+"-"+m); el.onblur=()=>{const n=(el.value||"").replace(/[^\d]/g,""); el.value=n?(+n).toLocaleString("ko-KR"):"";}; el.onfocus=()=>{el.value=(el.value||"").replace(/[^\d]/g,"");}; }));
+$("miniCancel").onclick=()=>$("miniOv").classList.remove("open");
+$("miniSave").onclick=saveComment;
+$("miniOv").onclick=e=>{ if(e.target.id==="miniOv") $("miniOv").classList.remove("open"); };
 
 // ---------- Tabs + Plan ----------
 let planAngles=[]; let planBudget=[];
@@ -919,38 +985,43 @@ let ncColor=PALETTE[0];
 function fmtD(s){ if(!s)return null; const d=(""+s).split("-"); return d.length===3?`${d[0]}.${d[1]}.${d[2]}`:s; }
 async function showHome(){
   document.getElementById("home").style.display="block"; document.title="캠페인 · 코카-콜라";
+  document.body.classList.toggle("client", S.clientMode);
   const cs=await getDocs(collection(db,"campaigns"));
   renderHome(cs.docs.map(d=>({id:d.id,...d.data()})));
 }
+const STATUSES=["진행중","집행 완료","집행 취소"];
+function campStatus(c){ return c.status || (c.archived?"집행 완료":"진행중"); }
 let homeList=[]; let editingCampId=null;
 function campCard(c){
   const col=c.brandColor||"#E24B4A";
   const sched=(c.startDate||c.endDate)?`${fmtD(c.startDate)||"?"} ~ ${fmtD(c.endDate)||"?"}`:"일정 미정";
-  return `<div class="camp-card${c.archived?" arch":""}" data-id="${c.id}">
+  const menu=S.clientMode?"":`<div class="camp-menu">
+        <button data-act="edit" data-id="${c.id}">수정</button>
+        <button data-act="del" data-id="${c.id}">삭제</button>
+      </div>`;
+  return `<div class="camp-card${campStatus(c)!=="진행중"?" arch":""}" data-id="${c.id}">
     <div class="camp-bar" style="background:${col}"></div>
     <div class="camp-body">
       <div class="camp-brand"><span class="bdot" style="background:${col}"></span>${c.brand||"브랜드 미정"}</div>
       <div class="camp-name">${c.name||"(이름 없음)"}</div>
       <div class="camp-meta"><span><i class="ti ti-calendar"></i>${sched}</span></div>
-      <div class="camp-menu">
-        <button data-act="edit" data-id="${c.id}">수정</button>
-        <button data-act="${c.archived?"unarch":"arch"}" data-id="${c.id}">${c.archived?"복원":"보관"}</button>
-        <button data-act="del" data-id="${c.id}">삭제</button>
-      </div>
+      ${menu}
     </div></div>`;
 }
 function renderHome(list){
   homeList=list.slice().sort((a,b)=>(b.createdAt||0)-(a.createdAt||0));
-  const active=homeList.filter(c=>!c.archived), arch=homeList.filter(c=>c.archived);
-  document.getElementById("campGrid").innerHTML=active.length?active.map(campCard).join(""):`<div class="camp-empty">아직 캠페인이 없어요. <b>새 캠페인</b>으로 시작하세요.</div>`;
-  document.getElementById("archWrap").innerHTML=arch.length?`<div class="arch-h">보관함</div><div class="camp-grid">${arch.map(campCard).join("")}</div>`:"";
-  document.querySelectorAll(".camp-card").forEach(card=>card.onclick=e=>{ if(e.target.closest(".camp-menu"))return; location.href=location.pathname+"?campaign="+card.dataset.id; });
+  const vq=S.clientMode?"&view=client":"";
+  let h="";
+  STATUSES.forEach(st=>{ const g=homeList.filter(c=>campStatus(c)===st); if(!g.length) return;
+    h+=`${st!=="진행중"?`<div class="arch-h">${st}</div>`:""}<div class="camp-grid">${g.map(campCard).join("")}</div>`;
+  });
+  document.getElementById("campGrid").innerHTML=homeList.length?h:`<div class="camp-empty">아직 캠페인이 없어요. <b>새 캠페인</b>으로 시작하세요.</div>`;
+  document.getElementById("archWrap").innerHTML="";
+  document.querySelectorAll(".camp-card").forEach(card=>card.onclick=e=>{ if(e.target.closest(".camp-menu"))return; location.href=location.pathname+"?campaign="+card.dataset.id+vq; });
   document.querySelectorAll(".camp-menu button").forEach(b=>b.onclick=async e=>{ e.stopPropagation(); const id=b.dataset.id,act=b.dataset.act;
     if(act==="edit"){ openCampModal(homeList.find(c=>c.id===id)); return; }
-    try{ if(act==="del"){ if(!confirm("이 캠페인을 삭제할까요? (되돌릴 수 없어요)"))return; await deleteDoc(doc(db,"campaigns",id)); }
-      else{ await updateDoc(doc(db,"campaigns",id),{archived:act==="arch"}); }
-      showHome();
-    }catch(err){ alert("처리 실패: "+err.message); } });
+    try{ if(act==="del"){ if(!confirm("이 캠페인을 삭제할까요? (되돌릴 수 없어요)"))return; await deleteDoc(doc(db,"campaigns",id)); showHome(); } }
+    catch(err){ alert("처리 실패: "+err.message); } });
 }
 function openCampModal(c){
   editingCampId=c?c.id:null;
@@ -959,17 +1030,18 @@ function openCampModal(c){
   document.getElementById("ncSwatches").innerHTML=PALETTE.map(x=>`<span class="swatch${x===ncColor?" on":""}" data-c="${x}" style="background:${x}"></span>`).join("");
   document.querySelectorAll("#ncSwatches .swatch").forEach(s=>s.onclick=()=>{ ncColor=s.dataset.c; document.querySelectorAll("#ncSwatches .swatch").forEach(x=>x.classList.toggle("on",x===s)); });
   $("nc-brand").value=c?(c.brand||""):""; $("nc-name").value=c?(c.name||""):""; $("nc-start").value=c?(c.startDate||""):""; $("nc-end").value=c?(c.endDate||""):"";
+  $("nc-status").value=c?campStatus(c):"진행중";
   $("ncCreate").textContent=c?"저장":"생성";
   document.getElementById("newCampOv").classList.add("open");
 }
 async function saveCamp(){
   const brand=$("nc-brand").value.trim(), name=$("nc-name").value.trim();
   if(!name){ alert("캠페인명을 입력하세요."); return; }
-  const data={name,brand:brand||null,brandColor:ncColor,startDate:$("nc-start").value||null,endDate:$("nc-end").value||null};
+  const data={name,brand:brand||null,brandColor:ncColor,startDate:$("nc-start").value||null,endDate:$("nc-end").value||null,status:$("nc-status").value};
   $("ncCreate").disabled=true;
   try{
     if(editingCampId){ await updateDoc(doc(db,"campaigns",editingCampId),data); document.getElementById("newCampOv").classList.remove("open"); showHome(); }
-    else{ const id="c_"+Date.now().toString(36); await setDoc(doc(db,"campaigns",id),{...data,stage:"proposal",archived:false,createdAt:Date.now()}); location.href=location.pathname+"?campaign="+id; }
+    else{ const id="c_"+Date.now().toString(36); await setDoc(doc(db,"campaigns",id),{...data,stage:"proposal",createdAt:Date.now()}); location.href=location.pathname+"?campaign="+id; }
   }catch(e){ alert("실패: "+e.message); }
   $("ncCreate").disabled=false;
 }
@@ -987,7 +1059,7 @@ async function load(){
   render();
 }
 if(CID){
-  load().catch(e=>{document.getElementById("tbody").innerHTML=`<tr><td colspan="9" class="loading">불러오기 실패: ${e.message}</td></tr>`;});
+  load().catch(e=>{document.getElementById("tbody").innerHTML=`<tr><td colspan="12" class="loading">불러오기 실패: ${e.message}</td></tr>`;});
 }else{
   document.querySelector(".wrap").style.display="none";
   showHome().catch(e=>{document.getElementById("campGrid").innerHTML=`<div class="camp-empty">불러오기 실패: ${e.message}</div>`;});
